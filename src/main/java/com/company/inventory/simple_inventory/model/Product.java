@@ -1,13 +1,11 @@
 package com.company.inventory.simple_inventory.model;
 
-import com.company.inventory.simple_inventory.model.abstract_classes.Auditable;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
-import java.util.UUID;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @AllArgsConstructor
@@ -15,20 +13,53 @@ import java.util.UUID;
 @Setter
 @Getter
 @Table(name = "products")
-public class Product extends Auditable {
+public class Product extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(unique = true)
-    private String uuid = UUID.randomUUID().toString();
-
-    @Column(unique = true)
     private String name;
-
-    private Long quantity;
 
     @Column(unique = true)
     private String description;
+
+    @Getter(AccessLevel.PROTECTED)
+    @OneToMany(mappedBy = "transaction")
+    public Set<Transaction> transactions = new HashSet<>();
+
+    public Set<Transaction> getAllProductTransactions() {return Collections.unmodifiableSet(transactions);}
+
+    public void addProductTransaction(Transaction transaction) {
+        if (transactions == null) transactions = new HashSet<>();
+        transactions.add(transaction);
+        transaction.setProduct(this);
+    }
+
+    public void removeProductTransaction(Transaction transaction) {
+        if (transactions == null) return;
+        transactions.remove(transaction);
+        transaction.setProduct(null);
+    }
+
+    @Getter(AccessLevel.PROTECTED)
+    @OneToMany(mappedBy = "product")
+    public Set<Inventory> inventories = new HashSet<>();
+
+    public Set<Inventory> getAllProductInventories() {return Collections.unmodifiableSet(inventories);}
+
+    public void addProductInventory(Inventory inventory) {
+        if (inventories == null) inventories = new HashSet<>();
+        inventories.add(inventory);
+        inventory.setProduct(this);
+    }
+
+    public void removeProductInventory(Inventory inventory) {
+        if (inventories == null) return;
+        inventories.remove(inventory);
+        inventory.setProduct(null);
+    }
+
+
 }

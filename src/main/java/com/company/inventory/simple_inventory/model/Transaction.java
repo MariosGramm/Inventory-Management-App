@@ -1,11 +1,8 @@
 package com.company.inventory.simple_inventory.model;
 
 import com.company.inventory.simple_inventory.core.enums.TransactionType;
-import com.company.inventory.simple_inventory.model.abstract_classes.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.UUID;
 
 @Entity
 @AllArgsConstructor
@@ -13,14 +10,11 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "transaction")
-public class Transaction extends Auditable {
+public class Transaction extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true)
-    private String uuid = UUID.randomUUID().toString();
 
     @Enumerated(EnumType.STRING)
     private TransactionType type;
@@ -32,5 +26,30 @@ public class Transaction extends Auditable {
     @JoinColumn(name = "user_id")
     private User user;
 
+    public void assignUser(User user){
+        if (this.user != null){
+            this.user.getTransactions().remove(this);
+        }
 
+        this.user = user;
+        if (user != null) {
+            user.getTransactions().add(this);
+        }
+    }
+
+    @Getter(AccessLevel.PROTECTED)
+    @ManyToOne
+    @JoinColumn(name = "product_id")
+    private Product product;
+
+    public void assignTransactionProduct(Product product) {
+        if (this.product != null){
+            this.product.getTransactions().remove(this);
+        }
+
+        this.product = product;
+        if (product != null){
+            product.getTransactions().add(this);
+        }
+    }
 }

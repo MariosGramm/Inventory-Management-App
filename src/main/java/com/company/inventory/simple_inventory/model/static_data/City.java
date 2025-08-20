@@ -14,14 +14,21 @@ import java.util.UUID;
 @Getter
 @Setter
 @Table(name = "cities")
-public class City{
+public class City {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
-    @Column(unique = true)
-    private String uuid = UUID.randomUUID().toString();
+    @Column(updatable = false,nullable = false,unique = true)
+    private String uuid;
+
+    @PrePersist
+    public void generateUUID(){
+        if (uuid == null){
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 
     @Column(unique = true)
     private String name;

@@ -1,8 +1,9 @@
-package com.company.inventory.simple_inventory.model.abstract_classes;
+package com.company.inventory.simple_inventory.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @MappedSuperclass
 @Getter
@@ -19,7 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class)
-public abstract class Auditable {
+public abstract class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -28,4 +30,14 @@ public abstract class Auditable {
     @LastModifiedDate
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    @Column(updatable = false,nullable = false,unique = true)
+    private String uuid;
+
+    @PrePersist
+    public void generateUUID(){
+        if (uuid == null){
+            uuid = UUID.randomUUID().toString();
+        }
+    }
 }

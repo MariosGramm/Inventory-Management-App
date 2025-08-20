@@ -1,14 +1,12 @@
 package com.company.inventory.simple_inventory.model;
 
 import com.company.inventory.simple_inventory.core.enums.Role;
-import com.company.inventory.simple_inventory.model.abstract_classes.Auditable;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,14 +14,11 @@ import java.util.UUID;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class User extends Auditable {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(unique = true)
-    private String uuid = UUID.randomUUID().toString();
 
     @Enumerated(EnumType.STRING)
     private Role role;
@@ -40,15 +35,15 @@ public class User extends Auditable {
     @OneToMany(mappedBy = "user")
     private Set<Transaction> transactions = new HashSet<>();
 
-    public Set<Transaction> getAllTransactions() {return Collections.unmodifiableSet(transactions);}
+    public Set<Transaction> getAllUserTransactions() {return Collections.unmodifiableSet(transactions);}
 
-    public void addTransaction(Transaction transaction) {
+    public void addUserTransaction(Transaction transaction) {
         if (transactions == null) transactions = new HashSet<>();
         transactions.add(transaction);
         transaction.setUser(this);
     }
 
-    public void removeTransaction(Transaction transaction) {
+    public void removeUserTransaction(Transaction transaction) {
         if (transactions == null) return;
         transactions.remove(transaction);
         transaction.setUser(null);
