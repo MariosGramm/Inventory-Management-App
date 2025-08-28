@@ -18,7 +18,7 @@ public class City {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private String id;
+    private Long id;
 
     @Column(updatable = false,nullable = false,unique = true)
     private String uuid;

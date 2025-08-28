@@ -26,7 +26,7 @@ public class Product extends BaseEntity {
     private String description;
 
     @Getter(AccessLevel.PROTECTED)
-    @OneToMany(mappedBy = "transaction")
+    @OneToMany(mappedBy = "product")
     public Set<Transaction> transactions = new HashSet<>();
 
     public Set<Transaction> getAllProductTransactions() {return Collections.unmodifiableSet(transactions);}
@@ -34,13 +34,13 @@ public class Product extends BaseEntity {
     public void addProductTransaction(Transaction transaction) {
         if (transactions == null) transactions = new HashSet<>();
         transactions.add(transaction);
-        transaction.setProduct(this);
+        transaction.assignTransactionProduct(this);
     }
 
     public void removeProductTransaction(Transaction transaction) {
         if (transactions == null) return;
         transactions.remove(transaction);
-        transaction.setProduct(null);
+        transaction.assignTransactionProduct(null);
     }
 
     @Getter(AccessLevel.PROTECTED)

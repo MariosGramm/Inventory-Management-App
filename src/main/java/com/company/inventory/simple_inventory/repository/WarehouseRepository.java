@@ -13,9 +13,13 @@ public interface WarehouseRepository extends JpaRepository<Warehouse,Long> , Jpa
 
     Optional<Warehouse> findByUuid(String uuid);
 
-    @Query("SELECT w.name,w.address,w.uuid,count(i) FROM Warehouse w JOIN Inventory i GROUP BY w ORDER BY count(i) DESC")
-    List<Object> getInventoryCountPerWarehouse();
+    @Query("SELECT w.name, w.address, w.uuid, COUNT(i) " +
+            "FROM Warehouse w " +
+            "JOIN w.inventories i " +
+            "GROUP BY w.name, w.address, w.uuid " +
+            "ORDER BY COUNT(i) DESC")
+    List<Object[]> getInventoryCountPerWarehouse();
 
-    @Query("SELECT DISTINCT w FROM Warehouse W JOIN w.inventories i JOIN i.product p WHERE p.name = :productName")
+    @Query("SELECT DISTINCT w FROM Warehouse w JOIN w.inventories i JOIN i.product p WHERE p.name = :productName")
     List<Warehouse> getWarehousesWhereProductExists();
 }
