@@ -19,7 +19,7 @@ public class Inventory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long quantity;
+    private Double quantity;
 
     @Getter(AccessLevel.PROTECTED)
     @ManyToOne

@@ -1,5 +1,6 @@
 package com.company.inventory.simple_inventory.model;
 
+import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,6 +25,9 @@ public class Product extends BaseEntity {
 
     @Column(unique = true)
     private String description;
+
+    @Enumerated(EnumType.STRING)
+    private UnitOfMeasure unit;
 
     @Getter(AccessLevel.PROTECTED)
     @OneToMany(mappedBy = "product")
