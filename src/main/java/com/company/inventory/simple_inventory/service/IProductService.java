@@ -17,7 +17,7 @@ public interface IProductService {
 
     ProductReadOnlyDTO updateProduct(ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException,EntityInvalidArgumentException;
 
-    ProductReadOnlyDTO deleteTeacher(String uuid) throws EntityNotFoundException,EntityInvalidArgumentException;
+    ProductReadOnlyDTO deleteProductByUuid(String uuid) throws EntityNotFoundException,EntityInvalidArgumentException;
 
-    Page<ProductReadOnlyDTO> getPaginatedTeachers(int page, int size);
+    Page<ProductReadOnlyDTO> getPaginatedProducts(int page, int size);
 }

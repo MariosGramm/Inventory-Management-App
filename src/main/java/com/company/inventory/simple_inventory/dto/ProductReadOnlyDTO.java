@@ -2,9 +2,17 @@ package com.company.inventory.simple_inventory.dto;
 
 
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class ProductReadOnlyDTO {
 
     private String name;
@@ -14,5 +22,5 @@ public class ProductReadOnlyDTO {
     private String uuid;
     private Double quantity;
     private UnitOfMeasure unit;
-    private Long warehouseName;
+    private String warehouseName;
 }
