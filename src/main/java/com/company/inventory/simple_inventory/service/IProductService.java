@@ -9,11 +9,13 @@ import com.company.inventory.simple_inventory.dto.ProductUpdateDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 
+import java.util.List;
+
 public interface IProductService {
 
     ProductReadOnlyDTO saveProduct(ProductInsertDTO productInsertDTO) throws EntityAlreadyExistsException, EntityInvalidArgumentException;
 
-    ProductReadOnlyDTO searchProduct(ProductSearchDTO productSearchDTO) throws EntityInvalidArgumentException, EntityNotFoundException;
+    ProductReadOnlyDTO searchProduct(List<ProductSearchDTO> productSearchDTO) throws EntityInvalidArgumentException, EntityNotFoundException;
 
     ProductReadOnlyDTO updateProduct(ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException,EntityInvalidArgumentException;
 

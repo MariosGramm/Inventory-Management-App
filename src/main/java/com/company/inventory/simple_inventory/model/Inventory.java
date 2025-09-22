@@ -19,6 +19,9 @@ public class Inventory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    private String uuid;
+
     private Double quantity;
 
     @Getter(AccessLevel.PROTECTED)
@@ -37,7 +40,7 @@ public class Inventory extends BaseEntity {
         }
     }
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(AccessLevel.PUBLIC)
     @ManyToOne
     @JoinColumn(name = "warehouse_id")
     private Warehouse warehouse;

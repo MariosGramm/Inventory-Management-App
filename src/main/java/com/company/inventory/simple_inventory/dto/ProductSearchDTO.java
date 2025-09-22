@@ -13,7 +13,7 @@ import lombok.Setter;
 public class ProductSearchDTO {
 
     private String name;
-    private Long uuid;
-    private Long warehouseName;
+    private String uuid;
+    private String warehouseName;
     private UnitOfMeasure unit;
 }

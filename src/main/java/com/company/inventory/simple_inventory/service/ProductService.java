@@ -20,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -35,28 +38,83 @@ public class ProductService implements IProductService{
     @Transactional(rollbackOn = {EntityAlreadyExistsException.class, EntityInvalidArgumentException.class})
     public ProductReadOnlyDTO saveProduct(ProductInsertDTO dto) throws EntityAlreadyExistsException, EntityInvalidArgumentException {
         try {
-            if ((productRepository.findByName(dto.getName())).isPresent()){
-                throw new EntityAlreadyExistsException("Product","Product with name " + dto.getName() + " already exists");
+            if (productRepository.findByName(dto.getName()).isPresent()){
+                throw new EntityAlreadyExistsException("Product","Product with name" + dto.getName() + "already exists");
             }
 
             Product product = mapper.mapToProductEntity(dto);
 
             Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
-                    .orElseThrow(() -> new EntityInvalidArgumentException("Warehouse","Invalid warehouse id"));
+                    .orElseThrow(()->new EntityInvalidArgumentException("Warehouse","Invalid Warehouse id"));
 
-            Inventory inventory = mapper.mapToInventoryEntity(dto, product, warehouse);
+            Inventory inventory = mapper.mapToInventoryEntity(dto,product,warehouse);
 
-
-
-
-
-
+            return mapper.mapToProductReadOnlyDTO(product,warehouse,inventory);
+        }catch (EntityAlreadyExistsException e){
+            log.error("Save failed for product with name = {}. Product already exists",dto.getName(),e);
+            throw e;
+        }catch (EntityInvalidArgumentException e){
+            log.error("Save failed for product with name = {}. Warehouse id {} invalid", dto.getName(),dto.getWarehouseId(),e);
+            throw e;
         }
     }
 
     @Override
-    public ProductReadOnlyDTO searchProduct(ProductSearchDTO productSearchDTO) throws EntityInvalidArgumentException, EntityNotFoundException {
-        return null;
+    @Transactional(rollbackOn = {EntityInvalidArgumentException.class,EntityNotFoundException.class})
+    public List<ProductReadOnlyDTO> searchProduct(ProductSearchDTO dto) throws EntityInvalidArgumentException, EntityNotFoundException {
+        List<Product> products;
+
+        try {
+            if (dto.getUuid() != null){
+                Product product = productRepository.findByUuid(dto.getUuid())
+                        .orElseThrow(() -> new EntityNotFoundException("Product with uuid " + dto.getUuid() + " not found"));
+                products = List.of(product);
+
+            }else if (dto.getName() != null && !dto.getName().isBlank()) {
+                products = productRepository.findByNameContainingIgnoreCase(dto.getName());
+
+                if (products.isEmpty()){
+                    throw new EntityNotFoundException("Product with name: " + dto.getName() + " not found" );
+                }
+            }else if (dto.getWarehouseName() != null && !dto.getWarehouseName().isBlank()) {
+                products = productRepository.findByInventories_Warehouse_NameIgnoreCase(dto.getWarehouseName());
+
+                if (products.isEmpty()){
+                    throw new EntityNotFoundException("Product with warehouse name: " + dto.getWarehouseName() + " not found" );
+                }
+            }else if (dto.getUnit() != null){
+                products = productRepository.findByUnit(dto.getUnit());
+
+                if (products.isEmpty()){
+                    throw new EntityNotFoundException("Product with unit: " + dto.getUnit() + " not found" );
+                }
+
+            }else {
+                products = productRepository.findAll();
+                if (products.isEmpty()){
+                    throw new EntityNotFoundException("No products found");
+                }
+            }
+
+            List<ProductReadOnlyDTO> dtos = new ArrayList<>();
+            for (Product product : products) {
+                Inventory inventory = product.getAllProductInventories().stream()
+                        .findFirst()
+                        .orElseThrow(() -> new EntityInvalidArgumentException("Product", "Product has no inventory"));
+
+                Warehouse warehouse = inventory.getWarehouse();
+                dtos.add(mapper.mapToProductReadOnlyDTO(product, warehouse, inventory));
+
+            }
+
+            return dtos;
+        }catch (EntityNotFoundException e){
+            log.error("Product not found",e);
+            throw e;
+        }catch (EntityInvalidArgumentException e){
+            log.error("Search failed. Invalid search terms", e);
+            throw e;
+        }
     }
 
     @Override
