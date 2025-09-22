@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -45,11 +46,14 @@ public class ProductService implements IProductService{
             Product product = mapper.mapToProductEntity(dto);
 
             Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
-                    .orElseThrow(()->new EntityInvalidArgumentException("Warehouse","Invalid Warehouse id"));
+                    .orElseThrow(() -> new EntityInvalidArgumentException("Warehouse","Invalid Warehouse id"));
 
             Inventory inventory = mapper.mapToInventoryEntity(dto,product,warehouse);
 
-            return mapper.mapToProductReadOnlyDTO(product,warehouse,inventory);
+            product.addProductInventory(inventory);
+            productRepository.save(product);
+
+            return mapper.mapToProductReadOnlyDTO(product);
         }catch (EntityAlreadyExistsException e){
             log.error("Save failed for product with name = {}. Product already exists",dto.getName(),e);
             throw e;
@@ -65,49 +69,41 @@ public class ProductService implements IProductService{
         List<Product> products;
 
         try {
-            if (dto.getUuid() != null){
+            if (dto == null){
+                throw new EntityInvalidArgumentException("Product","Search DTO cannot be null");
+            }
+            if (dto.getUuid() != null){         //uuid based search
                 Product product = productRepository.findByUuid(dto.getUuid())
                         .orElseThrow(() -> new EntityNotFoundException("Product with uuid " + dto.getUuid() + " not found"));
                 products = List.of(product);
 
-            }else if (dto.getName() != null && !dto.getName().isBlank()) {
+            }else if (dto.getName() != null && !dto.getName().isBlank()) {      //name based search
                 products = productRepository.findByNameContainingIgnoreCase(dto.getName());
 
                 if (products.isEmpty()){
                     throw new EntityNotFoundException("Product with name: " + dto.getName() + " not found" );
                 }
-            }else if (dto.getWarehouseName() != null && !dto.getWarehouseName().isBlank()) {
+            }else if (dto.getWarehouseName() != null && !dto.getWarehouseName().isBlank()) {    //warehouse name based search
                 products = productRepository.findByInventories_Warehouse_NameIgnoreCase(dto.getWarehouseName());
 
                 if (products.isEmpty()){
                     throw new EntityNotFoundException("Product with warehouse name: " + dto.getWarehouseName() + " not found" );
                 }
-            }else if (dto.getUnit() != null){
+            }else if (dto.getUnit() != null){       //unit of measure based search
                 products = productRepository.findByUnit(dto.getUnit());
 
                 if (products.isEmpty()){
                     throw new EntityNotFoundException("Product with unit: " + dto.getUnit() + " not found" );
                 }
 
-            }else {
-                products = productRepository.findAll();
-                if (products.isEmpty()){
-                    throw new EntityNotFoundException("No products found");
-                }
+            }else {     //no criteria provided - exception throw
+                throw new EntityInvalidArgumentException("Product","No search criteria provided");
             }
 
-            List<ProductReadOnlyDTO> dtos = new ArrayList<>();
-            for (Product product : products) {
-                Inventory inventory = product.getAllProductInventories().stream()
-                        .findFirst()
-                        .orElseThrow(() -> new EntityInvalidArgumentException("Product", "Product has no inventory"));
+            return products.stream()
+                    .map(product -> mapper.mapToProductReadOnlyDTO(product))
+                    .toList();
 
-                Warehouse warehouse = inventory.getWarehouse();
-                dtos.add(mapper.mapToProductReadOnlyDTO(product, warehouse, inventory));
-
-            }
-
-            return dtos;
         }catch (EntityNotFoundException e){
             log.error("Product not found",e);
             throw e;
@@ -118,8 +114,31 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public ProductReadOnlyDTO updateProduct(ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException, EntityInvalidArgumentException {
-        return null;
+    public ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO dto) throws EntityNotFoundException, EntityAlreadyExistsException {
+        try {
+            Product product = productRepository.findByUuid(uuid)
+                    .orElseThrow(()-> new EntityNotFoundException("Product with uuid: " + uuid + "not found"));
+
+            if (!product.getName().equals(dto.getName())){
+                if (productRepository.findByName(dto.getName()).isEmpty()){
+                    product.setName(dto.getName());
+                } else throw new EntityAlreadyExistsException("Product","Product with name " + dto.getName() + " already exists");
+            }
+
+            product.setDescription(dto.getDescription());
+            product.setUnit(dto.getUnit());
+
+            productRepository.save(product);
+            log.info("Product with uuid = {} updated",uuid);
+
+            return mapper.mapToProductReadOnlyDTO(product);
+        }catch (EntityNotFoundException e){
+            log.error("Product not found");
+            throw e;
+        }catch (EntityAlreadyExistsException e){
+            log.error("Product already exists");
+            throw e;
+        }
     }
 
     @Override

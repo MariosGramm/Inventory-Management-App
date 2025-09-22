@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -20,7 +21,6 @@ public class ProductReadOnlyDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String uuid;
-    private Double quantity;
     private UnitOfMeasure unit;
-    private String warehouseName;
+    private List<InventoryReadOnlyDTO> inventories;
 }

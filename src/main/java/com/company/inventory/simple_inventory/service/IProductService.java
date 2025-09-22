@@ -15,9 +15,9 @@ public interface IProductService {
 
     ProductReadOnlyDTO saveProduct(ProductInsertDTO productInsertDTO) throws EntityAlreadyExistsException, EntityInvalidArgumentException;
 
-    ProductReadOnlyDTO searchProduct(List<ProductSearchDTO> productSearchDTO) throws EntityInvalidArgumentException, EntityNotFoundException;
+    List<ProductReadOnlyDTO> searchProduct(ProductSearchDTO productSearchDTO) throws EntityInvalidArgumentException, EntityNotFoundException;
 
-    ProductReadOnlyDTO updateProduct(ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException,EntityInvalidArgumentException;
+    ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException,EntityInvalidArgumentException,EntityAlreadyExistsException;
 
     ProductReadOnlyDTO deleteProductByUuid(String uuid) throws EntityNotFoundException,EntityInvalidArgumentException;
 

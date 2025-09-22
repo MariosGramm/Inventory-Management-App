@@ -13,9 +13,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class ProductUpdateDTO {
 
-    @NotBlank(message = "Uuid field cannot be blank")
-    private String uuid;
-
     @NotBlank(message = "Name field cannot be blank" )
     private String name;
 
