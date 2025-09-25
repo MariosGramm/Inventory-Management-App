@@ -18,11 +18,13 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
+
 import java.util.List;
-import java.util.Objects;
+
 
 @Service
 @RequiredArgsConstructor
@@ -142,12 +144,26 @@ public class ProductService implements IProductService{
     }
 
     @Override
-    public ProductReadOnlyDTO deleteProductByUuid(String uuid) throws EntityNotFoundException, EntityInvalidArgumentException {
-        return null;
+    public void deleteProductByUuid(String uuid) throws EntityNotFoundException {
+        try {
+            Product product = productRepository.findByUuid(uuid)
+                    .orElseThrow(()-> new EntityNotFoundException("Product with uuid: " + uuid + "not found"));
+
+            //Soft delete
+            productRepository.deleteById(product.getId());
+            log.info("Product with uuid = {} successfully deleted",product.getUuid());
+
+        }catch (EntityNotFoundException e){
+            log.error("Product does not exist");
+            throw e;
+        }
     }
 
     @Override
     public Page<ProductReadOnlyDTO> getPaginatedProducts(int page, int size) {
-        return null;
+        Pageable pageable = PageRequest.of(page,size);
+        Page<Product> productPage = productRepository.findAll(pageable);
+        log.debug("Page = {} , Size = {}",page,size);
+        return productPage.map(mapper::mapToProductReadOnlyDTO);
     }
 }

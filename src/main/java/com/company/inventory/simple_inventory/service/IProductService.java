@@ -19,7 +19,7 @@ public interface IProductService {
 
     ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException,EntityInvalidArgumentException,EntityAlreadyExistsException;
 
-    ProductReadOnlyDTO deleteProductByUuid(String uuid) throws EntityNotFoundException,EntityInvalidArgumentException;
+    void deleteProductByUuid(String uuid) throws EntityNotFoundException;
 
     Page<ProductReadOnlyDTO> getPaginatedProducts(int page, int size);
 }
