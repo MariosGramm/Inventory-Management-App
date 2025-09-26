@@ -2,10 +2,7 @@ package com.company.inventory.simple_inventory.service;
 
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
-import com.company.inventory.simple_inventory.dto.ProductInsertDTO;
-import com.company.inventory.simple_inventory.dto.ProductReadOnlyDTO;
-import com.company.inventory.simple_inventory.dto.ProductSearchDTO;
-import com.company.inventory.simple_inventory.dto.ProductUpdateDTO;
+import com.company.inventory.simple_inventory.dto.*;
 import com.company.inventory.simple_inventory.mapper.Mapper;
 import com.company.inventory.simple_inventory.model.Inventory;
 import com.company.inventory.simple_inventory.model.Product;
@@ -50,7 +47,12 @@ public class ProductService implements IProductService{
             Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
                     .orElseThrow(() -> new EntityInvalidArgumentException("Warehouse","Invalid Warehouse id"));
 
-            Inventory inventory = mapper.mapToInventoryEntity(dto,product,warehouse);
+            InventoryInsertDTO inventoryDto = new InventoryInsertDTO();
+            inventoryDto.setQuantity(dto.getQuantity()); // αν υπάρχει quantity στο ProductInsertDTO
+            inventoryDto.setProductUuid(product.getUuid());
+            inventoryDto.setWarehouseUuid(warehouse.getUuid());
+
+            Inventory inventory = mapper.mapToInventoryEntity(inventoryDto, product, warehouse);
 
             product.addProductInventory(inventory);
             productRepository.save(product);
@@ -116,6 +118,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    @Transactional(rollbackOn ={EntityNotFoundException.class,EntityAlreadyExistsException.class})
     public ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO dto) throws EntityNotFoundException, EntityAlreadyExistsException {
         try {
             Product product = productRepository.findByUuid(uuid)
@@ -144,6 +147,7 @@ public class ProductService implements IProductService{
     }
 
     @Override
+    @Transactional(rollbackOn = EntityNotFoundException.class)
     public void deleteProductByUuid(String uuid) throws EntityNotFoundException {
         try {
             Product product = productRepository.findByUuid(uuid)

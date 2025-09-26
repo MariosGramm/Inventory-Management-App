@@ -19,5 +19,5 @@ public class InventoryInsertDTO {
     private Double quantity;
 
     @NotNull(message = "A warehouse must be selected")
-    private Long warehouseId;
+    private String warehouseUuid;
 }

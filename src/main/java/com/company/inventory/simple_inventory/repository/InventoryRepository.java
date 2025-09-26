@@ -11,5 +11,5 @@ public interface InventoryRepository extends JpaRepository<Inventory,Long> , Jpa
 
     Optional<Inventory> findByUuid(String uuid);
     List<Inventory> findByWarehouse_Id(Long warehouseId);
-    Boolean existsByProductIdAndWarehouseId(Long productId , Long warehouseId);
+    Optional<Inventory> findByProductUuidAndWarehouseUuid(String productUuid , String warehouseUuid);
 }

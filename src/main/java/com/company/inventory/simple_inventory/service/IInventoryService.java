@@ -1,5 +1,8 @@
 package com.company.inventory.simple_inventory.service;
 
+import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
+import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
+import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 import com.company.inventory.simple_inventory.dto.InventoryInsertDTO;
 import com.company.inventory.simple_inventory.dto.InventoryReadOnlyDTO;
 import com.company.inventory.simple_inventory.dto.InventoryUpdateDTO;
@@ -11,7 +14,7 @@ import java.util.List;
 
 public interface IInventoryService {
 
-    InventoryReadOnlyDTO createInventory(InventoryInsertDTO dto);
+    InventoryReadOnlyDTO createInventory(InventoryInsertDTO dto) throws EntityAlreadyExistsException, EntityNotFoundException;
     InventoryReadOnlyDTO updateInventory(InventoryUpdateDTO dto);
     void deleteInventory (String inventoryUuid);   //incorrect entry cancellation
     List<InventoryReadOnlyDTO> findByProduct(String productUuid);

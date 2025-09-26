@@ -24,7 +24,7 @@ public class Inventory extends BaseEntity {
 
     private Double quantity;
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(AccessLevel.PUBLIC)
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;

@@ -12,4 +12,5 @@ import lombok.Setter;
 public class InventoryReadOnlyDTO {
     private String warehouseName;
     private Double quantity;
+    private String productName;
 }

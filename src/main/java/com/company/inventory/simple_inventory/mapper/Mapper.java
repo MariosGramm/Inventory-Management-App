@@ -1,14 +1,11 @@
 package com.company.inventory.simple_inventory.mapper;
 
-import com.company.inventory.simple_inventory.dto.InventoryReadOnlyDTO;
-import com.company.inventory.simple_inventory.dto.ProductInsertDTO;
-import com.company.inventory.simple_inventory.dto.ProductReadOnlyDTO;
-import com.company.inventory.simple_inventory.dto.ProductUpdateDTO;
+import com.company.inventory.simple_inventory.dto.*;
 import com.company.inventory.simple_inventory.model.Inventory;
 import com.company.inventory.simple_inventory.model.Product;
 import com.company.inventory.simple_inventory.model.Warehouse;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 public class Mapper {
@@ -17,7 +14,7 @@ public class Mapper {
         return new Product(null,null, dto.getName(), dto.getDescription(),dto.getUnit(),null,null);
     }
 
-    public Inventory mapToInventoryEntity(ProductInsertDTO dto, Product product, Warehouse warehouse){
+    public Inventory mapToInventoryEntity(InventoryInsertDTO dto, Product product, Warehouse warehouse) {
         Inventory inventory = new Inventory();
         inventory.setProduct(product);
         inventory.setWarehouse(warehouse);
@@ -29,7 +26,8 @@ public class Mapper {
         List<InventoryReadOnlyDTO> inventoryDTOs = product.getAllProductInventories().stream()
                 .map(inv -> new InventoryReadOnlyDTO(
                         inv.getWarehouse().getName(),
-                        inv.getQuantity()
+                        inv.getQuantity(),
+                        product.getName()
                 ))
                 .toList();
 
@@ -45,8 +43,11 @@ public class Mapper {
     }
 
 
-    public ProductUpdateDTO mapToProductUpdateDTO(Product product){
-        return new ProductUpdateDTO(product.getUuid(), product.getName(), product.getDescription(),product.getUnit());
+    public InventoryReadOnlyDTO mapToInventoryReadOnlyDTO(Inventory inventory) {
+        return new InventoryReadOnlyDTO
+                        (inventory.getWarehouse().getName(),
+                        inventory.getQuantity(),
+                        inventory.getProduct().getName());
     }
 
 
