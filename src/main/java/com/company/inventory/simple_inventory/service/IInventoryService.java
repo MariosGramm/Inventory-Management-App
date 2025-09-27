@@ -15,9 +15,9 @@ import java.util.List;
 public interface IInventoryService {
 
     InventoryReadOnlyDTO createInventory(InventoryInsertDTO dto) throws EntityAlreadyExistsException, EntityNotFoundException;
-    InventoryReadOnlyDTO updateInventory(InventoryUpdateDTO dto);
-    void deleteInventory (String inventoryUuid);   //incorrect entry cancellation
-    List<InventoryReadOnlyDTO> findByProduct(String productUuid);
-    List<InventoryReadOnlyDTO> findByWarehouse(String warehouseUuid);
-    InventoryReadOnlyDTO findByProductAndWarehouse(String productUuid, String warehouseUuid);
+    InventoryReadOnlyDTO updateInventory(InventoryUpdateDTO dto) throws EntityAlreadyExistsException, EntityNotFoundException;
+    void deleteInventory (String inventoryUuid) throws EntityNotFoundException;   //incorrect entry cancellation
+    List<InventoryReadOnlyDTO> findByProduct(String productUuid) throws EntityNotFoundException;
+    List<InventoryReadOnlyDTO> findByWarehouse(String warehouseUuid) throws EntityNotFoundException;
+    InventoryReadOnlyDTO findByProductAndWarehouse(String productUuid, String warehouseUuid) throws EntityNotFoundException;
 }

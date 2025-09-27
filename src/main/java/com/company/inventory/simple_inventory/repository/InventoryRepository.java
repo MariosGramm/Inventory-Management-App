@@ -10,6 +10,7 @@ import java.util.Optional;
 public interface InventoryRepository extends JpaRepository<Inventory,Long> , JpaSpecificationExecutor<Inventory> {
 
     Optional<Inventory> findByUuid(String uuid);
-    List<Inventory> findByWarehouse_Id(Long warehouseId);
+    List<Inventory> findByWarehouse_Uuid(String warehouseUuid);
     Optional<Inventory> findByProductUuidAndWarehouseUuid(String productUuid , String warehouseUuid);
+    List<Inventory> findByProductUuid(String productUuid);
 }

@@ -33,7 +33,7 @@ public class InventoryService implements IInventoryService{
     private final Mapper mapper;
 
     @Override
-    @Transactional(rollbackOn = {EntityAlreadyExistsException.class,EntityInvalidArgumentException.class})
+    @Transactional(rollbackOn = {EntityAlreadyExistsException.class,EntityNotFoundException.class})
     public InventoryReadOnlyDTO createInventory(InventoryInsertDTO dto) throws EntityAlreadyExistsException, EntityNotFoundException {
         try {
             if (inventoryRepository.findByProductUuidAndWarehouseUuid(dto.getProductUuid(), dto.getWarehouseUuid()).isPresent()) {
@@ -56,31 +56,97 @@ public class InventoryService implements IInventoryService{
             throw e;
         }catch (EntityNotFoundException e){
             log.error("Save failed for inventory with product uuid = {} and warehouse uuid = {}.Inventory not found",dto.getProductUuid(),dto.getWarehouseUuid());
+            throw e;
         }
     }
 
     @Override
-    public InventoryReadOnlyDTO updateInventory(InventoryUpdateDTO dto) {
+    @Transactional (rollbackOn = {EntityAlreadyExistsException.class,EntityNotFoundException.class})
+    public InventoryReadOnlyDTO updateInventory(InventoryUpdateDTO dto) throws EntityAlreadyExistsException,EntityNotFoundException {
+        try {
+            Inventory inventory = inventoryRepository.findByProductUuidAndWarehouseUuid(dto.getProductUuid(), dto.getWarehouseUuid())
+                    .orElseThrow(() -> new EntityNotFoundException("Inventory","Inventory not found"));
 
+            Product product = productRepository.findByUuid(dto.getProductUuid())
+                    .orElseThrow(() -> new EntityNotFoundException("Product","Product does not exist"));
+
+            Warehouse warehouse = warehouseRepository.findByUuid(dto.getWarehouseUuid())
+                    .orElseThrow(() -> new EntityNotFoundException("Warehouse","Warehouse does not exist"));
+
+
+            if (!inventory.getProduct().getUuid().equals(dto.getProductUuid()) && inventory.getWarehouse().getUuid().equals(dto.getWarehouseUuid())){
+                inventory.setQuantity(dto.getQuantity());
+            }else throw new EntityAlreadyExistsException("Inventory",String.format("Inventory with Product name = %s and Warehouse name = %s already exists", product.getName(),warehouse.getName()));
+
+            return mapper.mapToInventoryReadOnlyDTO(inventory);
+
+        } catch (EntityAlreadyExistsException e){
+            log.error("Update failed for inventory with product uuid = {} and warehouse uuid = {}.Inventory already exists",dto.getProductUuid(),dto.getWarehouseUuid());
+            throw e;
+        }catch (EntityNotFoundException e){
+            log.error("Update failed for inventory with product uuid = {} and warehouse uuid = {}.Inventory not found",dto.getProductUuid(),dto.getWarehouseUuid());
+            throw e;
+        }
     }
 
     @Override
-    public void deleteInventory(String inventoryUuid) {
+    @Transactional (rollbackOn = {EntityNotFoundException.class})
+    public void deleteInventory(String inventoryUuid) throws EntityNotFoundException {
+        Inventory inventory = inventoryRepository.findByUuid(inventoryUuid)
+                .orElseThrow(() -> new EntityNotFoundException("Inventory","Inventory not found"));
 
+        inventoryRepository.deleteById(inventory.getId());
     }
 
     @Override
-    public List<InventoryReadOnlyDTO> findByProduct(String productUuid) {
-        return List.of();
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public List<InventoryReadOnlyDTO> findByProduct(String productUuid) throws EntityNotFoundException {
+        try {
+            List<Inventory> inventories = inventoryRepository.findByProductUuid(productUuid);
+
+            if (inventories.isEmpty()) {
+                throw new EntityNotFoundException("Inventory", "Inventory with Product uuid " + productUuid + " not found");
+            }
+
+            return inventories.stream()
+                    .map(mapper :: mapToInventoryReadOnlyDTO)
+                    .toList();
+        }catch (EntityNotFoundException e){
+            log.error("Inventory not found",e);
+            throw e;
+        }
     }
 
     @Override
-    public List<InventoryReadOnlyDTO> findByWarehouse(String warehouseUuid) {
-        return List.of();
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public List<InventoryReadOnlyDTO> findByWarehouse(String warehouseUuid) throws EntityNotFoundException {
+        List<Inventory> inventories = inventoryRepository.findByWarehouse_Uuid(warehouseUuid);
+
+        if (inventories.isEmpty()) {
+            throw new EntityNotFoundException("Inventory", "Inventory with Warehouse uuid " + warehouseUuid + " not found");
+        }
+
+        return inventories.stream()
+                .map(mapper :: mapToInventoryReadOnlyDTO)
+                .toList();
     }
 
     @Override
-    public InventoryReadOnlyDTO findByProductAndWarehouse(String productUuid, String warehouseUuid) {
-        return null;
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public InventoryReadOnlyDTO findByProductAndWarehouse(String productUuid, String warehouseUuid) throws EntityNotFoundException {
+
+        Product product = productRepository.findByUuid(productUuid)
+                .orElseThrow(() -> new EntityNotFoundException("Product","Product does not exist"));
+
+        Warehouse warehouse = warehouseRepository.findByUuid(warehouseUuid)
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse","Warehouse does not exist"));
+
+        Inventory inventory = inventoryRepository.findByProductUuidAndWarehouseUuid(productUuid, warehouseUuid)
+                .orElseThrow(() -> new EntityNotFoundException("Inventory",
+                        String.format("Inventory not found for Product name = %s and Warehouse name = %s",
+                                product.getName(), warehouse.getName())));
+
+        return mapper.mapToInventoryReadOnlyDTO(inventory);
     }
+
 }
