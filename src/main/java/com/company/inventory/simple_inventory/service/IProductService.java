@@ -22,4 +22,6 @@ public interface IProductService {
     void deleteProductByUuid(String uuid) throws EntityNotFoundException;
 
     Page<ProductReadOnlyDTO> getPaginatedProducts(int page, int size);
+
+    long countProducts();
 }

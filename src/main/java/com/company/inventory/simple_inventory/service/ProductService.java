@@ -170,4 +170,9 @@ public class ProductService implements IProductService{
         log.debug("Page = {} , Size = {}",page,size);
         return productPage.map(mapper::mapToProductReadOnlyDTO);
     }
+
+    @Override
+    public long countProducts() {
+        return productRepository.count();
+    }
 }

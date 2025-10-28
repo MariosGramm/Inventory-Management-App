@@ -149,4 +149,9 @@ public class InventoryService implements IInventoryService{
         return mapper.mapToInventoryReadOnlyDTO(inventory);
     }
 
+    @Override
+    public long countTransactions() {
+        return inventoryRepository.count();
+    }
+
 }

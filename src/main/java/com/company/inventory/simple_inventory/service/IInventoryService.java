@@ -20,4 +20,5 @@ public interface IInventoryService {
     List<InventoryReadOnlyDTO> findByProduct(String productUuid) throws EntityNotFoundException;
     List<InventoryReadOnlyDTO> findByWarehouse(String warehouseUuid) throws EntityNotFoundException;
     InventoryReadOnlyDTO findByProductAndWarehouse(String productUuid, String warehouseUuid) throws EntityNotFoundException;
+    long countTransactions();
 }
