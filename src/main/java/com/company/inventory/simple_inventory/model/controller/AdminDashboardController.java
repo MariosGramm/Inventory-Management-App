@@ -1,5 +1,7 @@
-package com.company.inventory.simple_inventory.controller;
+package com.company.inventory.simple_inventory.model.controller;
 
+import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
+import com.company.inventory.simple_inventory.model.User;
 import com.company.inventory.simple_inventory.service.IInventoryService;
 import com.company.inventory.simple_inventory.service.IProductService;
 import com.company.inventory.simple_inventory.service.IUserService;
@@ -9,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
+import java.time.format.DateTimeFormatter;
 
 @Controller
 @RequiredArgsConstructor
@@ -16,71 +19,37 @@ public class AdminDashboardController {
 
     private final IProductService productService;
     private final IInventoryService inventoryService;
-    private final IUserService userService;     //TO DO
+    private final IUserService userService;
 
     @GetMapping("/admin/dashboard")
-    public String showAdminDashboard(Model model, Principal principal) {
+    public String showAdminDashboard(Model model, Principal principal){
 
-        // Παίρνουμε το username από το session ή δίνουμε fallback
         String username = (principal != null) ? principal.getName() : "Guest";
+        User user;
 
-        // Δυναμικά δεδομένα
         long totalProducts = productService.countProducts();
-        long totalTransactions = inventoryService.countTransactions();
         long totalUsers = userService.countUsers();
-        String lastLogin = userService.getLastLoginFor(username);
+        long totalTransactions = inventoryService.countTransactions();
+        String lastLogin;
 
-        // Στέλνουμε τα δεδομένα στο View
-        model.addAttribute("username", username);
-        model.addAttribute("totalProducts", totalProducts);
-        model.addAttribute("totalTransactions", totalTransactions);
-        model.addAttribute("totalUsers", totalUsers);
-        model.addAttribute("lastLogin", lastLogin);
+        try {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMM yyyy, HH:mm");
+            lastLogin = userService.getLastLoginByUsername(username).format(formatter);
+        }catch (EntityNotFoundException e){
+            lastLogin = "--";
+        }
+
+        model.addAttribute("username",username);
+        model.addAttribute("totalProducts",totalProducts);
+        model.addAttribute("totalTransactions",totalTransactions);
+        model.addAttribute("totalUsers",totalUsers);
+        model.addAttribute("lastLogin",lastLogin);
 
         return "admin-dashboard";
+
+
+
+
     }
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

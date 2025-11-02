@@ -15,8 +15,10 @@ public interface IUserService {
 
     long countUsers();
     LocalDateTime getLastLoginFor(String uuid) throws EntityNotFoundException;
+    LocalDateTime getLastLoginByUsername(String username) throws EntityNotFoundException;
     UserReadOnlyDTO addUser(UserInsertDTO insertDTO) throws EntityAlreadyExistsException;
     UserReadOnlyDTO updateUser(String uuid, UserUpdateDTO updateDTO) throws EntityAlreadyExistsException, EntityNotFoundException;
     List<UserReadOnlyDTO> getAllUsers();
     Page<UserReadOnlyDTO> getPaginatedUsers(int page, int size);
+
 }

@@ -119,7 +119,7 @@ public class ProductService implements IProductService{
 
     @Override
     @Transactional(rollbackOn ={EntityNotFoundException.class,EntityAlreadyExistsException.class})
-    public ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO dto) throws EntityNotFoundException, EntityAlreadyExistsException {
+    public ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO dto) throws EntityAlreadyExistsException, EntityAlreadyExistsException {
         try {
             Product product = productRepository.findByUuid(uuid)
                     .orElseThrow(()-> new EntityNotFoundException("Product with uuid: " + uuid + "not found"));

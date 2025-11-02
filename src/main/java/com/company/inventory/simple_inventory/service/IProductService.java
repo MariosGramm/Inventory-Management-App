@@ -2,11 +2,11 @@ package com.company.inventory.simple_inventory.service;
 
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
+import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 import com.company.inventory.simple_inventory.dto.ProductInsertDTO;
 import com.company.inventory.simple_inventory.dto.ProductReadOnlyDTO;
 import com.company.inventory.simple_inventory.dto.ProductSearchDTO;
 import com.company.inventory.simple_inventory.dto.ProductUpdateDTO;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 
 import java.util.List;
@@ -17,9 +17,9 @@ public interface IProductService {
 
     List<ProductReadOnlyDTO> searchProduct(ProductSearchDTO productSearchDTO) throws EntityInvalidArgumentException, EntityNotFoundException;
 
-    ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO productUpdateDTO) throws EntityNotFoundException,EntityInvalidArgumentException,EntityAlreadyExistsException;
+    ProductReadOnlyDTO updateProduct(String uuid , ProductUpdateDTO productUpdateDTO) throws com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException,EntityAlreadyExistsException;
 
-    void deleteProductByUuid(String uuid) throws EntityNotFoundException;
+    void deleteProductByUuid(String uuid) throws com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 
     Page<ProductReadOnlyDTO> getPaginatedProducts(int page, int size);
 

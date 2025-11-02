@@ -43,7 +43,21 @@ public class UserService implements IUserService {
 
             return user.getLastLogin();
         }catch (EntityNotFoundException e){
-            log.error("Unable to retrieve last login for user with uuid = {}. {}", userRepository.findByUuid(uuid), e.getMessage());
+            log.error("Unable to retrieve last login for user with uuid = {}. {}", uuid, e.getMessage());
+            throw e;
+        }
+    }
+
+    @Override
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public LocalDateTime getLastLoginByUsername(String username) throws EntityNotFoundException {
+        try {
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new EntityNotFoundException("User","User does not exist"));
+
+            return user.getLastLogin();
+        }catch (EntityNotFoundException e) {
+            log.error("Unable to retrieve last login for user with username = {} . {}", username, e.getMessage());
             throw e;
         }
     }
