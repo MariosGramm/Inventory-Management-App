@@ -4,6 +4,7 @@ import com.company.inventory.simple_inventory.core.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,7 +30,6 @@ public class User extends BaseEntity {
     @Column(unique = true)
     private String username;
 
-
     private String firstname;
 
     private String lastname;
@@ -38,6 +38,8 @@ public class User extends BaseEntity {
     private String email;
 
     private String password;
+
+    private LocalDateTime LastLogin;
 
     @Getter(AccessLevel.PROTECTED)
     @OneToMany(mappedBy = "user")

@@ -3,6 +3,7 @@ package com.company.inventory.simple_inventory.mapper;
 import com.company.inventory.simple_inventory.dto.*;
 import com.company.inventory.simple_inventory.model.Inventory;
 import com.company.inventory.simple_inventory.model.Product;
+import com.company.inventory.simple_inventory.model.User;
 import com.company.inventory.simple_inventory.model.Warehouse;
 
 
@@ -48,6 +49,25 @@ public class Mapper {
                         (inventory.getWarehouse().getName(),
                         inventory.getQuantity(),
                         inventory.getProduct().getName());
+    }
+
+    public UserReadOnlyDTO mapToUserReadOnlyDTO(User user){
+        return new UserReadOnlyDTO
+                (
+                user.getUsername(), user.getEmail(), user.getRole(), user.getFirstname(), user.getLastname()
+                );
+    }
+
+    public User mapToUser(UserInsertDTO insertDTO){
+        User user = new User();
+
+        user.setEmail(insertDTO.getEmail());
+        user.setFirstname(insertDTO.getFirstname());
+        user.setLastname(insertDTO.getLastname());
+        user.setPassword(insertDTO.getPassword());
+        user.setRole(insertDTO.getRole());
+
+        return user;
     }
 
 

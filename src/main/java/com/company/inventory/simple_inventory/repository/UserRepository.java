@@ -13,6 +13,10 @@ public interface UserRepository extends JpaRepository<User,Long> , JpaSpecificat
 
     Optional<User> findByUuid(String uuid);
 
+    Optional<User> findByEmail(String email);
+
+    Optional<User> findByUsername(String username);
+
 
     @Query("SELECT u.lastname,u.username,u.uuid,count(t) FROM User u JOIN u.transactions t GROUP BY u ORDER BY count(t) DESC")
     List<Object> getTransactionCountPerUser();

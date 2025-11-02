@@ -74,9 +74,16 @@ public class InventoryService implements IInventoryService{
                     .orElseThrow(() -> new EntityNotFoundException("Warehouse","Warehouse does not exist"));
 
 
-            if (!inventory.getProduct().getUuid().equals(dto.getProductUuid()) && inventory.getWarehouse().getUuid().equals(dto.getWarehouseUuid())){
+            if (inventory.getProduct().getUuid().equals(dto.getProductUuid())
+                    && inventory.getWarehouse().getUuid().equals(dto.getWarehouseUuid())) {
+
                 inventory.setQuantity(dto.getQuantity());
-            }else throw new EntityAlreadyExistsException("Inventory",String.format("Inventory with Product name = %s and Warehouse name = %s already exists", product.getName(),warehouse.getName()));
+
+            } else {
+                throw new EntityAlreadyExistsException("Inventory",
+                        String.format("Inventory with Product name = %s and Warehouse name = %s already exists",
+                                product.getName(), warehouse.getName()));
+            }
 
             return mapper.mapToInventoryReadOnlyDTO(inventory);
 
