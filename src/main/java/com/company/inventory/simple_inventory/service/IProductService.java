@@ -24,4 +24,15 @@ public interface IProductService {
     Page<ProductReadOnlyDTO> getPaginatedProducts(int page, int size);
 
     long countProducts();
+
+    Page<ProductReadOnlyDTO> getPaginatedNotDeletedProducts(int page, int size);
+
+    List<ProductReadOnlyDTO> getAllProducts();
+
+    ProductUpdateDTO getProductForUpdate(String uuid) throws jakarta.persistence.EntityNotFoundException
+
+
+
+
+
 }

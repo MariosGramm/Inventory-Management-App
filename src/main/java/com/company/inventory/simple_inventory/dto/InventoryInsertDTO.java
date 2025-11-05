@@ -1,5 +1,6 @@
 package com.company.inventory.simple_inventory.dto;
 
+import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -20,4 +21,7 @@ public class InventoryInsertDTO {
 
     @NotNull(message = "A warehouse must be selected")
     private String warehouseUuid;
+
+    @NotBlank(message = "Transaction type must be selected")
+    private TransactionType transactionType;
 }

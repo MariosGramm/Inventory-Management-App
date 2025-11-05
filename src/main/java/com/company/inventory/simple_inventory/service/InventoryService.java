@@ -1,5 +1,6 @@
 package com.company.inventory.simple_inventory.service;
 
+import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
@@ -9,17 +10,26 @@ import com.company.inventory.simple_inventory.dto.InventoryUpdateDTO;
 import com.company.inventory.simple_inventory.mapper.Mapper;
 import com.company.inventory.simple_inventory.model.Inventory;
 import com.company.inventory.simple_inventory.model.Product;
+import com.company.inventory.simple_inventory.model.Transaction;
 import com.company.inventory.simple_inventory.model.Warehouse;
 import com.company.inventory.simple_inventory.repository.InventoryRepository;
 import com.company.inventory.simple_inventory.repository.ProductRepository;
+import com.company.inventory.simple_inventory.repository.TransactionRepository;
 import com.company.inventory.simple_inventory.repository.WarehouseRepository;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -30,6 +40,7 @@ public class InventoryService implements IInventoryService{
     private final InventoryRepository inventoryRepository;
     private final ProductRepository productRepository;
     private final WarehouseRepository warehouseRepository;
+    private final TransactionRepository transactionRepository;
     private final Mapper mapper;
 
     @Override
@@ -160,5 +171,191 @@ public class InventoryService implements IInventoryService{
     public long countTransactions() {
         return inventoryRepository.count();
     }
+
+    @Override
+    public Page<InventoryReadOnlyDTO> getPaginatedTransactions(int page , int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Inventory> transactionPage = inventoryRepository.findAll(pageable);
+        log.debug("Page = {} , Size = {}",page,size);
+        return transactionPage.map(mapper::mapToInventoryReadOnlyDTO);
+    }
+
+    @Override
+    public Page<InventoryReadOnlyDTO> getPaginatedNotDeletedTransactions(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Transaction> transactionPage = transactionRepository.findByDeletedFalse(pageable);
+
+        return  transactionPage.map(transaction -> {
+            InventoryReadOnlyDTO dto = new InventoryReadOnlyDTO();
+            dto.setProductName(transaction.getProduct().getName());
+            dto.setQuantity(transaction.getQuantity());
+            dto.setTransactionType(transaction.getType().name());
+            dto.setWarehouseName(
+                    Optional.ofNullable(transaction.getProduct())
+                            .map(Product::getInventoriesSafe)
+                            .filter(inventories -> !inventories.isEmpty())
+                            .flatMap(inventories -> inventories.stream().findFirst())
+                            .map(inventory -> inventory.getWarehouse().getName())
+                            .orElse("N/A")
+            );
+            return dto;
+        });
+    }
+
+    @Override
+    @Transactional(rollbackOn = {EntityNotFoundException.class, EntityInvalidArgumentException.class})
+    public void addTransaction(InventoryInsertDTO dto)
+            throws EntityNotFoundException, EntityInvalidArgumentException {
+
+        Product product = productRepository.findByUuid(dto.getProductUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Product","Product not found"));
+
+        Warehouse warehouse = warehouseRepository.findByUuid(dto.getWarehouseUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse","Warehouse not found"));
+
+        Inventory inventory = inventoryRepository.findByProductUuidAndWarehouseUuid(product.getUuid(), warehouse.getUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Inventory","Inventory not found"));
+
+        if (dto.getQuantity() == null || dto.getQuantity() <= 0)
+            throw new EntityInvalidArgumentException("Quantity","Quantity must be positive");
+
+        // --- apply stock change based on transactionType ---
+        if (dto.getTransactionType() == TransactionType.INCREASE) {
+            inventory.setQuantity(inventory.getQuantity() + dto.getQuantity());
+        } else if (dto.getTransactionType() == TransactionType.DECREASE) {
+            if (inventory.getQuantity() < dto.getQuantity()) {
+                throw new EntityInvalidArgumentException("Quantity", "Not enough stock for OUT transaction");
+            }
+            inventory.setQuantity(inventory.getQuantity() - dto.getQuantity());
+        }
+
+        // --- save transaction record ---
+        Transaction transaction = new Transaction();
+        transaction.setProduct(product);
+        transaction.setType(dto.getTransactionType());
+        transaction.setQuantity(dto.getQuantity());
+        transaction.setDeleted(false);
+        transaction.setWarehouse(warehouse);
+
+        transactionRepository.save(transaction);
+        inventoryRepository.save(inventory);
+    }
+
+    @Override
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public void deleteTransaction(String uuid) throws EntityNotFoundException {
+        Transaction transaction = transactionRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("Transaction","Transaction not found with uuid: " + uuid));
+
+
+        Inventory inventory = inventoryRepository
+                .findByProductUuidAndWarehouseUuid(transaction.getProduct().getUuid(), transaction.getWarehouseSafe().getUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Inventory","Inventory not found for this transaction."));
+
+        // Changing the inventory quantity with transaction reversal
+        if (transaction.getType() == TransactionType.INCREASE) {
+            inventory.setQuantity(inventory.getQuantity() - transaction.getQuantity());
+        } else if (transaction.getType() == TransactionType.DECREASE) {
+            inventory.setQuantity(inventory.getQuantity() + transaction.getQuantity());
+        }
+
+        // Soft delete
+        transaction.setDeleted(true);
+
+
+        transactionRepository.save(transaction);
+        inventoryRepository.save(inventory);
+
+        log.info("Transaction {} deleted (soft) and inventory adjusted for warehouse {}", uuid, transaction.getWarehouseSafe().getName());
+    }
+
+    @Override
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public List<InventoryReadOnlyDTO> searchTransactions(TransactionType type, LocalDate fromDate, LocalDate toDate) throws EntityNotFoundException {
+        LocalDateTime from = (fromDate != null) ? fromDate.atStartOfDay() : null;
+        LocalDateTime to = (toDate != null) ? toDate.atTime(23, 59, 59) : null;
+
+        List<Transaction> transactions = transactionRepository.findByTypeAndCreatedAtBetween(type, from, to);
+
+        if (transactions.isEmpty()) {
+            throw new EntityNotFoundException("Transaction","No transactions found with the given filters.");
+        }
+
+        return transactions.stream()
+                .map(t -> new InventoryReadOnlyDTO(
+                        t.getProduct().getName(),
+                        t.getQuantity(),
+                        t.getProduct().getUnit().toString(),
+                        t.getType().toString()
+                ))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(rollbackOn = {EntityNotFoundException.class, EntityInvalidArgumentException.class})
+    public void updateTransaction(InventoryUpdateDTO dto)
+            throws EntityNotFoundException, EntityInvalidArgumentException {
+
+
+        Transaction transaction = transactionRepository.findByUuid(dto.getUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Transaction", "Transaction not found"));
+
+        Product product = transaction.getProduct();
+        Warehouse warehouse = transaction.getWarehouseSafe();
+
+
+        Inventory inventory = inventoryRepository.findByProductUuidAndWarehouseUuid(product.getUuid(), warehouse.getUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Inventory", "Inventory not found for this transaction"));
+
+
+        if (dto.getQuantity() == null || dto.getQuantity() < 0) {
+            throw new EntityInvalidArgumentException("Quantity", "Quantity must be >= 0");
+        }
+
+
+        double oldQuantity = transaction.getQuantity();
+        double newQuantity = dto.getQuantity();
+        double diff = newQuantity - oldQuantity;
+
+
+        if (transaction.getType() == TransactionType.INCREASE) {
+            inventory.setQuantity(inventory.getQuantity() + diff);
+        } else if (transaction.getType() == TransactionType.DECREASE) {
+            if (inventory.getQuantity() - diff < 0) {
+                throw new EntityInvalidArgumentException("Quantity", "Not enough stock to decrease further");
+            }
+            inventory.setQuantity(inventory.getQuantity() - diff);
+        }
+
+
+        transaction.setQuantity(newQuantity);
+
+
+        if (dto.getTransactionType() != null) {
+            transaction.setType(dto.getTransactionType());
+        }
+
+
+        transactionRepository.save(transaction);
+        inventoryRepository.save(inventory);
+    }
+
+    @Override
+    @Transactional(rollbackOn = EntityNotFoundException.class)
+    public InventoryUpdateDTO getTransactionForUpdate(String uuid) throws EntityNotFoundException {
+        Transaction transaction = transactionRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("Transaction", "Transaction not found"));
+        return mapper.mapToUpdateInventoryDTO(transaction);
+    }
+
+
+
+
+
+
+
+
+
+
 
 }

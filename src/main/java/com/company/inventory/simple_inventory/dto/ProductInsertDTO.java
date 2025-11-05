@@ -29,4 +29,7 @@ public class ProductInsertDTO {
 
     @NotNull(message = "A warehouse must be selected")
     private Long warehouseId;
+
+    @NotNull(message = "Product price is mandatory")
+    private Double price;
 }

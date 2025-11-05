@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -175,4 +176,26 @@ public class ProductService implements IProductService{
     public long countProducts() {
         return productRepository.count();
     }
+
+    @Override
+    public Page<ProductReadOnlyDTO> getPaginatedNotDeletedProducts(int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+        return productRepository.findByDeletedFalse(pageable)
+                .map(mapper::mapToProductReadOnlyDTO);
+    }
+
+    @Override
+    public List<ProductReadOnlyDTO> getAllProducts(){
+        return productRepository.findAll()
+                .stream().map(mapper::mapToProductReadOnlyDTO)
+                .toList();
+    }
+
+    @Override
+    public ProductUpdateDTO getProductForUpdate(String uuid) throws EntityNotFoundException {
+        Product product = productRepository.findByUuid(uuid)
+                .orElseThrow(() -> new EntityNotFoundException("Product", "Product not found"));
+        return mapper.mapToProductUpdateDTO(product);
+    }
+
 }

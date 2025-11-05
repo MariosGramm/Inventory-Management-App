@@ -19,7 +19,7 @@ public class AdminAddProductController {
     private final IWarehouseService warehouseService;
     private final IProductService productService;
 
-    @GetMapping("/admin/products/add")
+    @GetMapping("/admin/products/new")
     public String showAddProductPage(Model model){
 
         model.addAttribute("product", new ProductInsertDTO());

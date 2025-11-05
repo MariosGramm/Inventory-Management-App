@@ -28,9 +28,16 @@ public class AdminProductsController {
     @GetMapping("/admin/products")
     public String showAdminProducts(@RequestParam(defaultValue = "0") int page,
                                     @RequestParam(defaultValue = "10") int size,
+                                    @RequestParam(defaultValue = "false") boolean showDeleted,
                                     Model model){
 
-        Page<ProductReadOnlyDTO> productPage = productService.getPaginatedProducts(page, size);
+        Page<ProductReadOnlyDTO> productPage;
+
+        if (showDeleted) {
+            productPage = productService.getPaginatedProducts(page, size); // includes deleted
+        } else {
+            productPage = productService.getPaginatedNotDeletedProducts(page, size); // only not deleted
+        }
 
         model.addAttribute("products", productPage.getContent());
         model.addAttribute("currentPage",page);

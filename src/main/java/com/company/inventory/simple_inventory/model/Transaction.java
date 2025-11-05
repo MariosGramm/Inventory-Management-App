@@ -4,6 +4,9 @@ import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Collections;
+import java.util.Set;
+
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +25,10 @@ public class Transaction extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private TransactionType type;
 
-    private Long quantity;
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    private Double quantity;
 
     @Getter(AccessLevel.PROTECTED)
     @ManyToOne
@@ -40,7 +46,7 @@ public class Transaction extends BaseEntity {
         }
     }
 
-    @Getter(AccessLevel.PROTECTED)
+    @Getter(AccessLevel.PUBLIC)
     @ManyToOne
     @JoinColumn(name = "product_id")
     private Product product;
@@ -55,4 +61,16 @@ public class Transaction extends BaseEntity {
             product.getTransactions().add(this);
         }
     }
+
+    @Getter(AccessLevel.PROTECTED)
+    @ManyToOne
+    @JoinColumn(name = "warehouse_id")
+    private Warehouse warehouse;
+
+
+    public Warehouse getWarehouseSafe() {
+        return this.warehouse;
+    }
+
+
 }

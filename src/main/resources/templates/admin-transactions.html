@@ -31,6 +31,18 @@
         <a th:href="@{/admin/transactions/new}" class="btn btn-success">+ Add New Transaction</a>
       </div>
 
+      <!-- Flash Messages for transaction delete -->
+      <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+
+
       <!-- Filters -->
       <form class="row g-2 mb-4" th:action="@{/admin/transactions/search}" method="get">
         <div class="col-md-3">
@@ -39,8 +51,8 @@
         <div class="col-md-2">
           <select name="type" class="form-select" th:value="${selectedType}">
             <option value="">All Types</option>
-            <option value="IN">IN</option>
-            <option value="OUT">OUT</option>
+            <option value="INCREASE">INCREASE</option>
+            <option value="DECREASE">DECREASE</option>
           </select>
         </div>
         <div class="col-md-3">
@@ -112,5 +124,14 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  setTimeout(() => {
+    document.querySelectorAll('.alert').forEach(alert => {
+      const bsAlert = new bootstrap.Alert(alert);
+      bsAlert.close();
+    });
+  }, 3000);
+</script>
+
 </body>
 </html>

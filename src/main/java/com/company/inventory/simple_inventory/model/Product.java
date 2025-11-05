@@ -13,8 +13,11 @@ import java.util.Set;
 @NoArgsConstructor
 @Setter
 @Getter
+@Builder
 @Table(name = "products")
 public class Product extends BaseEntity {
+
+
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +32,13 @@ public class Product extends BaseEntity {
     @Column(unique = true)
     private String description;
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
     @Enumerated(EnumType.STRING)
     private UnitOfMeasure unit;
+
+    private double price;
 
     @Getter(AccessLevel.PROTECTED)
     @OneToMany(mappedBy = "product")
@@ -50,9 +58,14 @@ public class Product extends BaseEntity {
         transaction.assignTransactionProduct(null);
     }
 
-    @Getter(AccessLevel.PROTECTED)
     @OneToMany(mappedBy = "product")
-    public Set<Inventory> inventories = new HashSet<>();
+    @Getter(AccessLevel.PROTECTED)
+    private Set<Inventory> inventories = new HashSet<>();
+
+    public Set<Inventory> getInventoriesSafe() {
+        return Collections.unmodifiableSet(inventories);
+    }
+
 
     public Set<Inventory> getAllProductInventories() {return Collections.unmodifiableSet(inventories);}
 

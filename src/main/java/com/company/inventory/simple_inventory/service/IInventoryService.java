@@ -1,5 +1,6 @@
 package com.company.inventory.simple_inventory.service;
 
+import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
@@ -9,7 +10,9 @@ import com.company.inventory.simple_inventory.dto.InventoryUpdateDTO;
 import com.company.inventory.simple_inventory.model.Inventory;
 import com.company.inventory.simple_inventory.model.Product;
 import com.company.inventory.simple_inventory.model.Warehouse;
+import org.springframework.data.domain.Page;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface IInventoryService {
@@ -21,4 +24,13 @@ public interface IInventoryService {
     List<InventoryReadOnlyDTO> findByWarehouse(String warehouseUuid) throws EntityNotFoundException;
     InventoryReadOnlyDTO findByProductAndWarehouse(String productUuid, String warehouseUuid) throws EntityNotFoundException;
     long countTransactions();
+    Page<InventoryReadOnlyDTO> getPaginatedTransactions(int page , int size);
+    Page<InventoryReadOnlyDTO> getPaginatedNotDeletedTransactions(int page, int size);
+    void addTransaction(InventoryInsertDTO inventoryInsertDTO)
+            throws EntityNotFoundException, EntityInvalidArgumentException;
+    void deleteTransaction(String uuid) throws EntityNotFoundException;
+    List<InventoryReadOnlyDTO> searchTransactions(TransactionType type, LocalDate fromDate, LocalDate toDate) throws EntityNotFoundException;
+    void updateTransaction(InventoryUpdateDTO updateDTO) throws EntityNotFoundException,EntityInvalidArgumentException;
+    InventoryUpdateDTO getTransactionForUpdate(String uuid) throws EntityNotFoundException;
+
 }

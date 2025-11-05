@@ -1,5 +1,6 @@
 package com.company.inventory.simple_inventory.dto;
 
+import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
@@ -12,11 +13,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class InventoryUpdateDTO {       //other fields(warehouse , product etc) cannot change.User has to delete the entry and re-insert it.
-    @NotNull(message = "Product UUID cannot be null")
-    private String productUuid;
+    @NotNull(message = "Transaction UUID cannot be null")
+    private String uuid;
 
-    @NotNull(message = "Warehouse UUID cannot be null")
-    private String warehouseUuid;
+    private String productUuid;     //read-only
+    private String warehouseUuid;   // read-only
+
+    private TransactionType transactionType;
 
     @NotNull(message = "Quantity cannot be null")
     @PositiveOrZero(message = "Quantity must be >= 0")
