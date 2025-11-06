@@ -185,21 +185,19 @@ public class InventoryService implements IInventoryService{
         Pageable pageable = PageRequest.of(page, size);
         Page<Transaction> transactionPage = transactionRepository.findByDeletedFalse(pageable);
 
-        return  transactionPage.map(transaction -> {
-            InventoryReadOnlyDTO dto = new InventoryReadOnlyDTO();
-            dto.setProductName(transaction.getProduct().getName());
-            dto.setQuantity(transaction.getQuantity());
-            dto.setTransactionType(transaction.getType().name());
-            dto.setWarehouseName(
-                    Optional.ofNullable(transaction.getProduct())
-                            .map(Product::getInventoriesSafe)
-                            .filter(inventories -> !inventories.isEmpty())
-                            .flatMap(inventories -> inventories.stream().findFirst())
-                            .map(inventory -> inventory.getWarehouse().getName())
-                            .orElse("N/A")
-            );
-            return dto;
-        });
+        return transactionPage.map(transaction ->
+                new InventoryReadOnlyDTO(
+                        transaction.getProduct().getName(),
+                        transaction.getQuantity(),
+                        transaction.getType().name(),
+                        Optional.of(transaction.getProduct())
+                                .map(Product::getInventoriesSafe)
+                                .filter(inventories -> !inventories.isEmpty())
+                                .flatMap(inventories -> inventories.stream().findFirst())
+                                .map(inventory -> inventory.getWarehouse().getName())
+                                .orElse("N/A")
+                )
+        );
     }
 
     @Override

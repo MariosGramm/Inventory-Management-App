@@ -9,7 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
-@Setter
 public class UserReadOnlyDTO {
 
     private String username;

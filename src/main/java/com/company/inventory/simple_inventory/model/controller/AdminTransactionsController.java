@@ -41,6 +41,7 @@ public class AdminTransactionsController {
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", transactionPage.getTotalPages());
         model.addAttribute("totalTransactions", transactionPage.getTotalElements());
+        model.addAttribute("showDeleted", showDeleted);
 
         return "admin-transactions";
 

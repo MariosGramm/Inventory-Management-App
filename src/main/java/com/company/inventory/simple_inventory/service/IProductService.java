@@ -29,7 +29,7 @@ public interface IProductService {
 
     List<ProductReadOnlyDTO> getAllProducts();
 
-    ProductUpdateDTO getProductForUpdate(String uuid) throws jakarta.persistence.EntityNotFoundException
+    ProductUpdateDTO getProductForUpdate(String uuid) throws jakarta.persistence.EntityNotFoundException;
 
 
 

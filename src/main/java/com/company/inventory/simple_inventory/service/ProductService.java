@@ -194,7 +194,7 @@ public class ProductService implements IProductService{
     @Override
     public ProductUpdateDTO getProductForUpdate(String uuid) throws EntityNotFoundException {
         Product product = productRepository.findByUuid(uuid)
-                .orElseThrow(() -> new EntityNotFoundException("Product", "Product not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
         return mapper.mapToProductUpdateDTO(product);
     }
 

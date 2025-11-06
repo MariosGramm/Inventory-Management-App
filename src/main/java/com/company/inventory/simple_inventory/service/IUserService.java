@@ -5,6 +5,7 @@ import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExist
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 import com.company.inventory.simple_inventory.dto.UserInsertDTO;
 import com.company.inventory.simple_inventory.dto.UserReadOnlyDTO;
+import com.company.inventory.simple_inventory.dto.UserSearchDTO;
 import com.company.inventory.simple_inventory.dto.UserUpdateDTO;
 import org.springframework.data.domain.Page;
 
@@ -20,5 +21,9 @@ public interface IUserService {
     UserReadOnlyDTO updateUser(String uuid, UserUpdateDTO updateDTO) throws EntityAlreadyExistsException, EntityNotFoundException;
     List<UserReadOnlyDTO> getAllUsers();
     Page<UserReadOnlyDTO> getPaginatedUsers(int page, int size);
+    Page<UserReadOnlyDTO> getPaginatedNotDeletedUsers(int page, int size);
+    void deleteUser(String uuid);
+
+    List<UserReadOnlyDTO> searchUsers(UserSearchDTO dto) throws EntityNotFoundException;
 
 }
