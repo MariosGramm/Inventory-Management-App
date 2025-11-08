@@ -30,7 +30,7 @@ public interface TransactionRepository extends JpaRepository<Transaction,Long> ,
             LocalDateTime from,
             LocalDateTime to
     );
-    List<Transaction> findTop5ByDeletedFalseOrderByCreatedAtDesc(int limit);
+    List<Transaction> findTop5ByDeletedFalseOrderByCreatedAtDesc();
 
     @Query("""
     SELECT t FROM Transaction t

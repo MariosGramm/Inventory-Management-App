@@ -33,7 +33,7 @@ public interface IInventoryService {
     List<InventoryReadOnlyDTO> searchTransactions(InventorySearchDTO inventorySearchDTO) throws EntityNotFoundException;
     void updateTransaction(InventoryUpdateDTO updateDTO) throws EntityNotFoundException,EntityInvalidArgumentException;
     InventoryUpdateDTO getTransactionForUpdate(String uuid) throws EntityNotFoundException;
-    List<InventoryReadOnlyDTO> getRecentTransactions(int limit);
+    List<InventoryReadOnlyDTO> getRecentTransactions();
     List<InventoryReadOnlyDTO> getAllTransactions();
 
 

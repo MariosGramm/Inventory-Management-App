@@ -41,7 +41,7 @@ public class AdminDashboardController {
             lastLogin = "--";
         }
 
-        List<InventoryReadOnlyDTO> recentTransactions = inventoryService.getRecentTransactions(5);
+        List<InventoryReadOnlyDTO> recentTransactions = inventoryService.getRecentTransactions();
 
         model.addAttribute("username",username);
         model.addAttribute("totalProducts",totalProducts);

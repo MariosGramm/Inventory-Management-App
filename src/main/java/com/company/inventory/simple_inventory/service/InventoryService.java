@@ -347,8 +347,8 @@ public class InventoryService implements IInventoryService{
         return mapper.mapToUpdateInventoryDTO(transaction);
     }
 
-    public List<InventoryReadOnlyDTO> getRecentTransactions(int limit) {
-        return transactionRepository.findTop5ByDeletedFalseOrderByCreatedAtDesc(limit)
+    public List<InventoryReadOnlyDTO> getRecentTransactions() {
+        return transactionRepository.findTop5ByDeletedFalseOrderByCreatedAtDesc()
                 .stream()
                 .map(transaction -> new InventoryReadOnlyDTO(
                         transaction.getWarehouseSafe().getName(),
