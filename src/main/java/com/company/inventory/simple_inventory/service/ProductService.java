@@ -45,11 +45,11 @@ public class ProductService implements IProductService{
 
             Product product = mapper.mapToProductEntity(dto);
 
-            Warehouse warehouse = warehouseRepository.findById(dto.getWarehouseId())
+            Warehouse warehouse = warehouseRepository.findByUuid(dto.getWarehouseUuid())
                     .orElseThrow(() -> new EntityInvalidArgumentException("Warehouse","Invalid Warehouse id"));
 
             InventoryInsertDTO inventoryDto = new InventoryInsertDTO();
-            inventoryDto.setQuantity(dto.getQuantity()); // αν υπάρχει quantity στο ProductInsertDTO
+            inventoryDto.setQuantity(dto.getQuantity());
             inventoryDto.setProductUuid(product.getUuid());
             inventoryDto.setWarehouseUuid(warehouse.getUuid());
 
@@ -63,7 +63,7 @@ public class ProductService implements IProductService{
             log.error("Save failed for product with name = {}. Product already exists",dto.getName(),e);
             throw e;
         }catch (EntityInvalidArgumentException e){
-            log.error("Save failed for product with name = {}. Warehouse id {} invalid", dto.getName(),dto.getWarehouseId(),e);
+            log.error("Save failed for product with name = {}. Warehouse uuid {} invalid", dto.getName(),dto.getWarehouseUuid(),e);
             throw e;
         }
     }
@@ -203,21 +203,29 @@ public class ProductService implements IProductService{
     public ProductReadOnlyDTO addProduct(ProductInsertDTO dto)
             throws EntityAlreadyExistsException, EntityInvalidArgumentException {
 
-        // 1️⃣ Safety validation checks (σε περίπτωση που παρακαμφθεί το UI validation)
+
         if (dto == null) {
             throw new EntityInvalidArgumentException("Product", "Product data cannot be null");
         }
+
         if (dto.getName() == null || dto.getName().isBlank()) {
             throw new EntityInvalidArgumentException("Name", "Product name cannot be empty");
         }
+
         if (dto.getUnit() == null) {
             throw new EntityInvalidArgumentException("Unit", "Unit of measure cannot be null");
         }
-        if (dto.getPrice() != null && dto.getPrice() < 0) {
-            throw new EntityInvalidArgumentException("Price", "Price cannot be negative");
+
+        if (dto.getPrice() == null || dto.getPrice() < 0) {
+            throw new EntityInvalidArgumentException("Price", "Price cannot be null or negative");
         }
-        if (dto.getQuantity() != null && dto.getQuantity() < 0) {
-            throw new EntityInvalidArgumentException("Quantity", "Quantity cannot be negative");
+
+        if (dto.getQuantity() == null || dto.getQuantity() < 0) {
+            throw new EntityInvalidArgumentException("Quantity", "Quantity cannot be null or negative");
+        }
+
+        if (dto.getWarehouseUuid() == null || dto.getWarehouseUuid().isBlank()) {
+            throw new EntityInvalidArgumentException("Warehouse", "Warehouse must be selected");
         }
 
 
@@ -227,18 +235,26 @@ public class ProductService implements IProductService{
 
 
         Product product = mapper.mapToProductEntity(dto);
-
-
         product.setDeleted(false);
-        if (product.getQuantity() == null) product.setQuantity(0.0);
-        if (product.getPrice() == null) product.setPrice(0.0);
-
-
         productRepository.save(product);
-        log.info("Product '{}' created successfully", product.getName());
+
+
+        Warehouse warehouse = warehouseRepository.findByUuid(dto.getWarehouseUuid())
+                .orElseThrow(() -> new EntityNotFoundException("Warehouse not found"));
+
+
+        Inventory inventory = new Inventory();
+        inventory.setProduct(product);
+        inventory.setWarehouse(warehouse);
+        inventory.setQuantity(dto.getQuantity());
+        inventoryRepository.save(inventory);
+
+        log.info("Product '{}' created successfully with quantity {} in warehouse '{}'",
+                product.getName(), dto.getQuantity(), warehouse.getName());
 
 
         return mapper.mapToProductReadOnlyDTO(product);
     }
+
 
 }

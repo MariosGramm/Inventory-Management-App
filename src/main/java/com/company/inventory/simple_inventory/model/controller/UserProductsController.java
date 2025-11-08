@@ -50,14 +50,20 @@ public class UserProductsController {
         searchDTO.setUnit(unit != null && !unit.isBlank() ? UnitOfMeasure.valueOf(unit) : null);
 
         try {
-            if (productService.searchProduct(searchDTO) == null){
+            List<ProductReadOnlyDTO> results = productService.searchProduct(searchDTO);
 
+            if (results == null || results.isEmpty()) {
+                redirectAttributes.addFlashAttribute("error", "No products found with the given filters!");
+                return "redirect:/user/products";
             }
-            model.addAttribute("products", products);
-        } catch (EntityNotFoundException e) {
-            redirectAttributes.addFlashAttribute("error", "No products found.");
+
+            model.addAttribute("products", results);
+
+        } catch (EntityInvalidArgumentException e) {
+            redirectAttributes.addFlashAttribute("error", "Invalid search parameters!");
             return "redirect:/user/products";
         }
+
 
         model.addAttribute("searchName", name);
         model.addAttribute("selectedUnit", unit);

@@ -3,6 +3,7 @@ package com.company.inventory.simple_inventory.dto;
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,20 +17,21 @@ import lombok.Setter;
 public class ProductInsertDTO {
 
     @NotBlank(message = "Name field cannot be blank")
-    @Size(min = 2 , message = "Product name must be at least 2 characters in size")
+    @Size(min = 2, message = "Product name must be at least 2 characters long")
     private String name;
 
-    @NotBlank(message = "A unit of measure must be selected")
+    @NotNull(message = "A unit of measure must be selected")
     private UnitOfMeasure unit;
 
     private String description;
 
-    @NotBlank(message = "Quantity field cannot be blank")
-    private Double quantity;
+    @PositiveOrZero(message = "Quantity must be 0 or positive")
+    private Double quantity; // optional — defaults to 0.0
 
-    @NotNull(message = "A warehouse must be selected")
-    private Long warehouseId;
+    @NotBlank(message = "Warehouse must be selected")
+    private String warehouseUuid;
 
     @NotNull(message = "Product price is mandatory")
+    @PositiveOrZero(message = "Price cannot be negative")
     private Double price;
 }
