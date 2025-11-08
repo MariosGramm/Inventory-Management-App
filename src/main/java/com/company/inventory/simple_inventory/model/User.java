@@ -28,7 +28,7 @@ public class User extends BaseEntity {
     private Role role;
 
     @Column(nullable = false)
-    private boolean deleted = false;
+    private Boolean deleted = false;
 
     @Column(unique = true)
     private String username;

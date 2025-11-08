@@ -2,6 +2,7 @@ package com.company.inventory.simple_inventory.model;
 
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.util.Collections;
@@ -17,8 +18,6 @@ import java.util.Set;
 @Table(name = "products")
 public class Product extends BaseEntity {
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -33,12 +32,12 @@ public class Product extends BaseEntity {
     private String description;
 
     @Column(nullable = false)
-    private boolean deleted = false;
+    private Boolean deleted = false;
 
     @Enumerated(EnumType.STRING)
     private UnitOfMeasure unit;
 
-    private double price;
+    private Double price;
 
     @Getter(AccessLevel.PROTECTED)
     @OneToMany(mappedBy = "product")

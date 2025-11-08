@@ -3,6 +3,7 @@ package com.company.inventory.simple_inventory.model.controller;
 import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 import com.company.inventory.simple_inventory.dto.InventoryReadOnlyDTO;
+import com.company.inventory.simple_inventory.dto.InventorySearchDTO;
 import com.company.inventory.simple_inventory.service.InventoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -62,13 +63,11 @@ public class AdminTransactionsController {
 
     @GetMapping("/admin/transactions/search")
     public String searchTransactions(
-            @RequestParam(required = false) TransactionType type,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
+            InventorySearchDTO searchDTO,
             Model model,
             RedirectAttributes redirectAttributes) throws EntityNotFoundException {
         try {
-            List<InventoryReadOnlyDTO> transactions = inventoryService.searchTransactions(type, fromDate, toDate);
+            List<InventoryReadOnlyDTO> transactions = inventoryService.searchTransactions(searchDTO);
             model.addAttribute("transactions", transactions);
         } catch (EntityNotFoundException e) {
             redirectAttributes.addFlashAttribute("error", "No transactions found.");

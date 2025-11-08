@@ -198,4 +198,47 @@ public class ProductService implements IProductService{
         return mapper.mapToProductUpdateDTO(product);
     }
 
+    @Override
+    @Transactional(rollbackOn = {EntityAlreadyExistsException.class, EntityInvalidArgumentException.class})
+    public ProductReadOnlyDTO addProduct(ProductInsertDTO dto)
+            throws EntityAlreadyExistsException, EntityInvalidArgumentException {
+
+        // 1️⃣ Safety validation checks (σε περίπτωση που παρακαμφθεί το UI validation)
+        if (dto == null) {
+            throw new EntityInvalidArgumentException("Product", "Product data cannot be null");
+        }
+        if (dto.getName() == null || dto.getName().isBlank()) {
+            throw new EntityInvalidArgumentException("Name", "Product name cannot be empty");
+        }
+        if (dto.getUnit() == null) {
+            throw new EntityInvalidArgumentException("Unit", "Unit of measure cannot be null");
+        }
+        if (dto.getPrice() != null && dto.getPrice() < 0) {
+            throw new EntityInvalidArgumentException("Price", "Price cannot be negative");
+        }
+        if (dto.getQuantity() != null && dto.getQuantity() < 0) {
+            throw new EntityInvalidArgumentException("Quantity", "Quantity cannot be negative");
+        }
+
+
+        if (productRepository.existsByNameIgnoreCase(dto.getName())) {
+            throw new EntityAlreadyExistsException("Product", "A product with this name already exists");
+        }
+
+
+        Product product = mapper.mapToProductEntity(dto);
+
+
+        product.setDeleted(false);
+        if (product.getQuantity() == null) product.setQuantity(0.0);
+        if (product.getPrice() == null) product.setPrice(0.0);
+
+
+        productRepository.save(product);
+        log.info("Product '{}' created successfully", product.getName());
+
+
+        return mapper.mapToProductReadOnlyDTO(product);
+    }
+
 }

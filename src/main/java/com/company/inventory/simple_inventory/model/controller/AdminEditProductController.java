@@ -21,17 +21,13 @@ public class AdminEditProductController {
     private final IProductService productService;
 
     @GetMapping("/admin/products/edit/{uuid}")
-    public String showEditProductPage(@PathVariable String uuid, Model model, RedirectAttributes redirectAttributes) throws EntityNotFoundException{
-        try {
+    public String showEditProductPage(@PathVariable String uuid, Model model, RedirectAttributes redirectAttributes) {
+
             ProductUpdateDTO dto = productService.getProductForUpdate(uuid);
             model.addAttribute("product", dto);
             model.addAttribute("units", UnitOfMeasure.values());
             model.addAttribute("warehouses", warehouseService.getAllWarehouses());
             return "admin-product-edit";
-        } catch (EntityNotFoundException e) {
-            redirectAttributes.addFlashAttribute("error", "Product not found!");
-            return "redirect:/admin/products";
-        }
     }
 
     @PostMapping("/admin/products/edit/{uuid}")
@@ -51,8 +47,6 @@ public class AdminEditProductController {
             redirectAttributes.addFlashAttribute("error", "A product with this name already exists!");
         } catch (EntityNotFoundException e) {
             redirectAttributes.addFlashAttribute("error", "Product not found!");
-        } catch (EntityInvalidArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", "Invalid product parameters!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Unexpected error occurred while updating product.");
         }

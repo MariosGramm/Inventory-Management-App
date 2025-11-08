@@ -6,6 +6,7 @@ import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgum
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 import com.company.inventory.simple_inventory.dto.InventoryInsertDTO;
 import com.company.inventory.simple_inventory.dto.InventoryReadOnlyDTO;
+import com.company.inventory.simple_inventory.dto.InventorySearchDTO;
 import com.company.inventory.simple_inventory.dto.InventoryUpdateDTO;
 import com.company.inventory.simple_inventory.model.Inventory;
 import com.company.inventory.simple_inventory.model.Product;
@@ -29,8 +30,11 @@ public interface IInventoryService {
     void addTransaction(InventoryInsertDTO inventoryInsertDTO)
             throws EntityNotFoundException, EntityInvalidArgumentException;
     void deleteTransaction(String uuid) throws EntityNotFoundException;
-    List<InventoryReadOnlyDTO> searchTransactions(TransactionType type, LocalDate fromDate, LocalDate toDate) throws EntityNotFoundException;
+    List<InventoryReadOnlyDTO> searchTransactions(InventorySearchDTO inventorySearchDTO) throws EntityNotFoundException;
     void updateTransaction(InventoryUpdateDTO updateDTO) throws EntityNotFoundException,EntityInvalidArgumentException;
     InventoryUpdateDTO getTransactionForUpdate(String uuid) throws EntityNotFoundException;
+    List<InventoryReadOnlyDTO> getRecentTransactions(int limit);
+    List<InventoryReadOnlyDTO> getAllTransactions();
+
 
 }

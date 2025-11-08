@@ -48,8 +48,6 @@ public class AdminUserController {
         try {
             userService.deleteUser(uuid);
             redirectAttributes.addFlashAttribute("success", "User deleted successfully!");
-        } catch (EntityNotFoundException e)  { //never thrown , kept for consistency
-            redirectAttributes.addFlashAttribute("error", "User not found!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("error", "Unexpected error occurred while deleting user.");
         }

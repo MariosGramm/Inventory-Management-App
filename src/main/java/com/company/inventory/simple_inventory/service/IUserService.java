@@ -24,6 +24,7 @@ public interface IUserService {
     Page<UserReadOnlyDTO> getPaginatedNotDeletedUsers(int page, int size);
     void deleteUser(String uuid);
 
+
     List<UserReadOnlyDTO> searchUsers(UserSearchDTO dto) throws EntityNotFoundException;
 
 }

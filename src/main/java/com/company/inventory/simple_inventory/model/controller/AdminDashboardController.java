@@ -1,6 +1,7 @@
 package com.company.inventory.simple_inventory.model.controller;
 
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
+import com.company.inventory.simple_inventory.dto.InventoryReadOnlyDTO;
 import com.company.inventory.simple_inventory.model.User;
 import com.company.inventory.simple_inventory.service.IInventoryService;
 import com.company.inventory.simple_inventory.service.IProductService;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 import java.security.Principal;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -38,6 +40,8 @@ public class AdminDashboardController {
         }catch (EntityNotFoundException e){
             lastLogin = "--";
         }
+
+        List<InventoryReadOnlyDTO> recentTransactions = inventoryService.getRecentTransactions(5);
 
         model.addAttribute("username",username);
         model.addAttribute("totalProducts",totalProducts);

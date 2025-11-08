@@ -21,8 +21,8 @@ public interface ProductRepository extends JpaRepository<Product,Long> , JpaSpec
     List<Product> findByInventories_Warehouse_NameIgnoreCase(String warehouseName);
     List<Product> findByUnit(UnitOfMeasure unit);
     Page<Product> findByDeletedFalse(Pageable pageable);
+    boolean existsByNameIgnoreCase(String name);
 
     @Query("SELECT t.product FROM Transaction t WHERE t.uuid = :transactionUuid")
     Optional<Product> findProductByTransactionUuid(@Param("transactionUuid") String transactionUuid);
-
 }

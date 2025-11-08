@@ -6,6 +6,7 @@ import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgum
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
 import com.company.inventory.simple_inventory.dto.InventoryInsertDTO;
 import com.company.inventory.simple_inventory.dto.InventoryReadOnlyDTO;
+import com.company.inventory.simple_inventory.dto.InventorySearchDTO;
 import com.company.inventory.simple_inventory.dto.InventoryUpdateDTO;
 import com.company.inventory.simple_inventory.mapper.Mapper;
 import com.company.inventory.simple_inventory.model.Inventory;
@@ -269,11 +270,11 @@ public class InventoryService implements IInventoryService{
 
     @Override
     @Transactional(rollbackOn = EntityNotFoundException.class)
-    public List<InventoryReadOnlyDTO> searchTransactions(TransactionType type, LocalDate fromDate, LocalDate toDate) throws EntityNotFoundException {
-        LocalDateTime from = (fromDate != null) ? fromDate.atStartOfDay() : null;
-        LocalDateTime to = (toDate != null) ? toDate.atTime(23, 59, 59) : null;
+    public List<InventoryReadOnlyDTO> searchTransactions(InventorySearchDTO searchDTO) throws EntityNotFoundException {
+        LocalDateTime from = (searchDTO.getFromDate()!= null) ? searchDTO.getFromDate().atStartOfDay() : null;
+        LocalDateTime to = (searchDTO.getToDate() != null) ? searchDTO.getToDate().atTime(23, 59, 59) : null;
 
-        List<Transaction> transactions = transactionRepository.findByTypeAndCreatedAtBetween(type, from, to);
+        List<Transaction> transactions = transactionRepository.findByTypeAndCreatedAtBetween(searchDTO.getTransactionType(), from, to);
 
         if (transactions.isEmpty()) {
             throw new EntityNotFoundException("Transaction","No transactions found with the given filters.");
@@ -346,14 +347,40 @@ public class InventoryService implements IInventoryService{
         return mapper.mapToUpdateInventoryDTO(transaction);
     }
 
+    public List<InventoryReadOnlyDTO> getRecentTransactions(int limit) {
+        return transactionRepository.findTop5ByDeletedFalseOrderByCreatedAtDesc(limit)
+                .stream()
+                .map(transaction -> new InventoryReadOnlyDTO(
+                        transaction.getWarehouseSafe().getName(),
+                        transaction.getQuantity(),
+                        transaction.getProduct().getName(),
+                        transaction.getType().name()
+                ))
+                .toList();
+    }
 
-
-
-
-
-
-
-
-
-
+    @Override
+    public List<InventoryReadOnlyDTO> getAllTransactions() {
+        return transactionRepository.findAll()
+                .stream()
+                .map(transaction -> new InventoryReadOnlyDTO(
+                        transaction.getWarehouseSafe().getName(),
+                        transaction.getQuantity(),
+                        transaction.getProduct().getName(),
+                        transaction.getType().name()
+                ))
+                .toList();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+

@@ -19,8 +19,12 @@
         <a th:href="@{/admin/products}" class="list-group-item list-group-item-action">Products</a>
         <a th:href="@{/admin/transactions}" class="list-group-item list-group-item-action">Transactions</a>
         <a th:href="@{/admin/users}" class="list-group-item list-group-item-action">Users</a>
-        <a th:href="@{/admin/reports}" class="list-group-item list-group-item-action">Reports</a>
-        <a th:href="@{/logout}" class="list-group-item list-group-item-action text-danger">Logout</a>
+        <!-- Logout Link -->
+        <a href="#" class="list-group-item list-group-item-action text-danger"
+           data-bs-toggle="modal" data-bs-target="#logoutModal">
+          Logout
+        </a>
+
       </div>
     </div>
 
@@ -70,6 +74,54 @@
         </div>
       </div>
 
+      <!-- Recent Transactions Section -->
+      <h4 class="mb-3 mt-4">Recent Transactions</h4>
+      <div th:if="${#lists.isEmpty(recentTransactions)}">
+        <div class="alert alert-info text-center">No recent transactions available.</div>
+      </div>
+
+      <div th:unless="${#lists.isEmpty(recentTransactions)}">
+        <table class="table table-striped align-middle">
+          <thead class="table-dark">
+          <tr>
+            <th>UUID</th>
+            <th>Product</th>
+            <th>Quantity</th>
+            <th>Type</th>
+            <th>Date</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr th:each="t : ${recentTransactions}">
+            <td th:text="${t.uuid}"></td>
+            <td th:text="${t.productName}"></td>
+            <td th:text="${t.quantity}"></td>
+            <td th:text="${t.type}"></td>
+            <td th:text="${#temporals.format(t.date, 'dd MMM yyyy')}"></td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- Logout Confirmation Modal -->
+<div class="modal fade" id="logoutModal" tabindex="-1" aria-labelledby="logoutModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="logoutModalLabel">Confirm Logout</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Are you sure you want to log out from the admin panel?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <a th:href="@{/logout}" class="btn btn-danger">Logout</a>
+      </div>
     </div>
   </div>
 </div>

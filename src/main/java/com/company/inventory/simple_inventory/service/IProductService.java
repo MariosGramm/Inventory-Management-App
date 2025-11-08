@@ -31,8 +31,5 @@ public interface IProductService {
 
     ProductUpdateDTO getProductForUpdate(String uuid) throws jakarta.persistence.EntityNotFoundException;
 
-
-
-
-
+    ProductReadOnlyDTO addProduct(ProductInsertDTO productInsertDTO) throws EntityAlreadyExistsException, EntityInvalidArgumentException;
 }
