@@ -1,6 +1,6 @@
 # 🏦 Simple Inventory Management System
 
-A **full stack inventory management app** built with **Spring Boot**, **Thymeleaf**, **Hibernate**, and **MySQL**.  
+A **full stack server-side rendering inventory management app** built with **Spring Boot**, **Thymeleaf**, **Hibernate**, and **MySQL**.  
 The application supports full **CRUD** functionality (Create, Read, Update, Delete) for **Products**, **Inventories**, **Transactions**, and **Users**.
 
 ---
