@@ -1,61 +1,61 @@
 # 🏦 Simple Inventory Management System
 
-Ένα **πλήρες σύστημα διαχείρισης αποθήκης** (Inventory Management System) υλοποιημένο με **Spring Boot**, **Thymeleaf**, **Hibernate** και **MySQL**.  
-Η εφαρμογή υποστηρίζει πλήρη λειτουργικότητα **CRUD** (Create, Read, Update, Delete) για προϊόντα, αποθέματα (inventories), συναλλαγές (transactions) και χρήστες (users).
+A **complete inventory management system** built with **Spring Boot**, **Thymeleaf**, **Hibernate**, and **MySQL**.  
+The application supports full **CRUD** functionality (Create, Read, Update, Delete) for **Products**, **Inventories**, **Transactions**, and **Users**.
 
 ---
 
-## 🚀 Τεχνολογίες
+## 🚀 Technologies
 
 - **Java 17+**
 - **Spring Boot 3**
 - **Spring MVC**
 - **Spring Data JPA / Hibernate**
-- **Thymeleaf** (για το frontend)
-- **MySQL** (για την αποθήκευση των δεδομένων)
-- **Bootstrap 5** (UI/UX styling)
+- **Thymeleaf** (for the frontend)
+- **MySQL** (for data storage)
+- **Bootstrap 5** (for UI/UX styling)
 
 ---
 
-## 🧩 Περιγραφή Λειτουργιών
+## 🧩 Features Overview
 
-### 👥 Ρόλοι Χρηστών
+### 👥 User Roles
 
 #### 👨‍💼 **Admin**
-- Έχει **πλήρη πρόσβαση** στο σύστημα.
-- Μπορεί να:
-  - Προσθέτει / επεξεργάζεται / διαγράφει προϊόντα.
-  - Διαχειρίζεται τα αποθέματα (Inventories).
-  - Παρακολουθεί και δημιουργεί **Transactions** (Increase / Decrease).
-  - **Διαχειρίζεται χρήστες** (δημιουργία, τροποποίηση, διαγραφή).
-- Διαθέτει dashboard με **στατιστικά** και **τελευταίο login**.
+- Has **full system access**.
+- Can:
+  - Create, edit, and delete **products**.
+  - Manage **inventories**.
+  - View and create **transactions** (Increase / Decrease).
+  - **Manage users** (create, update, delete).
+- Has access to an **admin dashboard** with statistics and **last login tracking**.
 
 #### 👤 **User**
-- Μπορεί να εκτελεί **μόνο λειτουργίες σχετικές με προϊόντα και αποθέματα**.
-- Δεν έχει πρόσβαση στη **διαχείριση χρηστών**.
-- Μπορεί να δει και να καταχωρήσει **transactions**.
+- Can perform actions **related to products and inventories only**.
+- Cannot manage other users.
+- Can view and register **transactions**.
 
 ---
 
-## 💾 CRUD Λογική
+## 💾 CRUD Logic
 
-Η λογική CRUD έχει υλοποιηθεί με βάση τη **δομή υπηρεσιών (Service Layer)**:
-- **Products:** Δημιουργία, ενημέρωση, προβολή, διαγραφή.
-- **Inventories:** Αυτόματη ενημέρωση αποθεμάτων βάσει transactions.
+The CRUD operations are implemented following a **Service Layer architecture**:
+- **Products:** Create, update, view, and delete.
+- **Inventories:** Automatically updated based on transactions.
 - **Transactions:**  
-  - Κάθε Increase / Decrease ενημερώνει δυναμικά το απόθεμα.
-  - Συνδέονται με προϊόν και αποθήκη.
+  - Each Increase / Decrease dynamically updates the inventory quantity.
+  - Linked to both a product and a warehouse.
 - **Users:**  
-  - Ο admin έχει πλήρη έλεγχο.
-  - Το τελευταίο login ενημερώνεται δυναμικά.
+  - Admin has full management privileges.
+  - The **last login time** is automatically updated.
 
 ---
 
 ## 🗃️ Database
 
-Η βάση δεδομένων είναι **MySQL**.  
-Τα entities συνδέονται μέσω **JPA/Hibernate** relationships:
+The system uses a **MySQL** relational database.  
+Entities are linked through **JPA/Hibernate relationships**:
 - `Product` ↔ `Inventory`
 - `Product` ↔ `Transaction`
 - `Warehouse` ↔ `Inventory`
-- `User` → (με ρόλους Admin / User)
+- `User` → (with roles: Admin / User)
