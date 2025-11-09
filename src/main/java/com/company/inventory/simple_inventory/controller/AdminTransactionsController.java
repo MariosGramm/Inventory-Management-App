@@ -1,4 +1,4 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.core.enums.TransactionType;
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
@@ -48,18 +48,7 @@ public class AdminTransactionsController {
 
     }
 
-    @GetMapping("/admin/transactions/delete/{uuid}")
-    public String deleteTransaction(@PathVariable String uuid, RedirectAttributes redirectAttributes){
-        try{
-            inventoryService.deleteTransaction(uuid);
-            redirectAttributes.addFlashAttribute("success","Transaction deleted successfully");
-        } catch (EntityNotFoundException e) {
-            redirectAttributes.addFlashAttribute("error","Transaction not found");
-        } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error","Unexpected error occurred while deleting transaction.");
-        }
-        return "redirect:/admin/transactions";
-    }
+
 
     @GetMapping("/admin/transactions/search")
     public String searchTransactions(

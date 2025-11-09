@@ -1,4 +1,4 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
@@ -61,6 +61,9 @@ public class UserProductsController {
 
         } catch (EntityInvalidArgumentException e) {
             redirectAttributes.addFlashAttribute("error", "Invalid search parameters!");
+            return "redirect:/user/products";
+        }catch (EntityNotFoundException e){
+            redirectAttributes.addFlashAttribute("error","No products found");
             return "redirect:/user/products";
         }
 

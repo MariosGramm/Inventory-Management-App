@@ -21,13 +21,13 @@ public class SecurityConfig {
 
                 .authorizeHttpRequests(auth -> auth
 
-                        .requestMatchers("/login", "/css/**", "/js/**", "/img/**").permitAll()
+                        .requestMatchers("/login", "/error", "/", "/css/**", "/js/**", "/img/**").permitAll()
 
                         // Admin routes
                         .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         // User routes
-                        .requestMatchers("/user/**").hasAnyRole("USER", "ADMIN")
+                        .requestMatchers("/user/**").hasRole("USER")
 
 
                         .anyRequest().authenticated()
@@ -36,7 +36,9 @@ public class SecurityConfig {
                 // Login setup
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/user/dashboard", true)
+                        .usernameParameter("email") //login with email
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/", true)
                         .failureUrl("/login?error=true")
                         .permitAll()
                 )

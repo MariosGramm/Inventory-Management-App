@@ -1,6 +1,7 @@
 package com.company.inventory.simple_inventory.dto;
 
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -31,4 +32,7 @@ public class ProductUpdateDTO {
     private Double price;
 
     private String warehouseUuid;
+
+    @Min(0)
+    private Double quantity;
 }

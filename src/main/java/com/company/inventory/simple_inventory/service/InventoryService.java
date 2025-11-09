@@ -181,25 +181,46 @@ public class InventoryService implements IInventoryService{
         return transactionPage.map(mapper::mapToInventoryReadOnlyDTO);
     }
 
-    @Override
-    public Page<InventoryReadOnlyDTO> getPaginatedNotDeletedTransactions(int page, int size) {
-        Pageable pageable = PageRequest.of(page, size);
-        Page<Transaction> transactionPage = transactionRepository.findByDeletedFalse(pageable);
+//    @Override
+//    public Page<InventoryReadOnlyDTO> getPaginatedNotDeletedTransactions(int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<Transaction> transactionPage = transactionRepository.findByDeletedFalse(pageable);
+//
+//        return transactionPage.map(transaction ->
+//                new InventoryReadOnlyDTO(
+//                        Optional.of(transaction.getProduct())
+//                                .map(Product::getInventoriesSafe)
+//                                .filter(inventories -> !inventories.isEmpty())
+//                                .flatMap(inventories -> inventories.stream().findFirst())
+//                                .map(inventory -> inventory.getWarehouse().getName())
+//                                .orElse("N/A"),
+//                        transaction.getQuantity(),
+//                        transaction.getProduct().getName(),
+//                        transaction.getType().name()
+//                )
+//        );
+//    }
+@Override
+public Page<InventoryReadOnlyDTO> getPaginatedNotDeletedTransactions(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    Page<Transaction> transactionPage = transactionRepository.findByDeletedFalse(pageable);
 
-        return transactionPage.map(transaction ->
-                new InventoryReadOnlyDTO(
-                        transaction.getProduct().getName(),
-                        transaction.getQuantity(),
-                        transaction.getType().name(),
-                        Optional.of(transaction.getProduct())
-                                .map(Product::getInventoriesSafe)
-                                .filter(inventories -> !inventories.isEmpty())
-                                .flatMap(inventories -> inventories.stream().findFirst())
-                                .map(inventory -> inventory.getWarehouse().getName())
-                                .orElse("N/A")
-                )
+    return transactionPage.map(transaction -> {
+        String warehouseName = "N/A";
+        if (transaction.getWarehouseSafe() != null && transaction.getWarehouseSafe().getName() != null) {
+            warehouseName = transaction.getWarehouseSafe().getName();
+        }
+
+        return new InventoryReadOnlyDTO(
+                transaction.getProduct().getName(),
+                transaction.getQuantity(),
+                transaction.getType().name(),
+                warehouseName
         );
-    }
+    });
+}
+
+
 
     @Override
     @Transactional(rollbackOn = {EntityNotFoundException.class, EntityInvalidArgumentException.class})

@@ -69,10 +69,10 @@
               </div>
               <div class="col-md-8">
                 <label class="form-label">Warehouse</label>
-                <select th:field="*{warehouseName}" class="form-select" required>
+                <select th:field="*{warehouseUuid}" class="form-select" required>
                   <option value="" disabled selected hidden>Select warehouse</option>
                   <option th:each="warehouse : ${warehouses}"
-                          th:value="${warehouse.name}"
+                          th:value="${warehouse.uuid}"
                           th:text="${warehouse.name}">
                   </option>
                 </select>

@@ -1,10 +1,10 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
-import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
 import com.company.inventory.simple_inventory.dto.ProductInsertDTO;
-import com.company.inventory.simple_inventory.service.ProductService;
+import com.company.inventory.simple_inventory.service.IProductService;
+import com.company.inventory.simple_inventory.service.IWarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,29 +14,32 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequiredArgsConstructor
-public class UserProductAddController {
+public class AdminAddProductController {
 
-    private final ProductService productService;
+    private final IWarehouseService warehouseService;
+    private final IProductService productService;
 
-    @GetMapping("/user/products/add")
-    public String showAddProductForm(Model model) {
+    @GetMapping("/admin/products/new")
+    public String showAddProductPage(Model model){
+
         model.addAttribute("product", new ProductInsertDTO());
         model.addAttribute("units", UnitOfMeasure.values());
-        return "user-product-add";
+        model.addAttribute("warehouses", warehouseService.getAllWarehouses());
+
+        return "admin-product-add";
     }
 
-    @PostMapping("/user/products/add")
+    @PostMapping("/admin/products/add")
     public String addProduct(ProductInsertDTO productInsertDTO, RedirectAttributes redirectAttributes) {
         try {
-            productService.addProduct(productInsertDTO);
+            productService.saveProduct(productInsertDTO);
             redirectAttributes.addFlashAttribute("success", "Product added successfully!");
         } catch (EntityAlreadyExistsException e) {
-            redirectAttributes.addFlashAttribute("error", "A product with this name already exists!");
-        } catch (EntityInvalidArgumentException e) {
-            redirectAttributes.addFlashAttribute("error", "Invalid product data!");
+            redirectAttributes.addFlashAttribute("error", "Product already exists!");
         } catch (Exception e) {
-            redirectAttributes.addFlashAttribute("error", "Unexpected error while adding product!");
+            redirectAttributes.addFlashAttribute("error", "An unexpected error occurred!");
         }
-        return "redirect:/user/products";
+        return "redirect:/admin/products";
     }
+
 }

@@ -1,34 +1,35 @@
 package com.company.inventory.simple_inventory.model;
 
 import com.company.inventory.simple_inventory.core.enums.Role;
+import com.company.inventory.simple_inventory.repository.UserRepository;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Getter
 @Setter
+@Slf4j
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String uuid;
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
-    @Column(nullable = false)
-    private Boolean deleted = false;
 
     @Column(unique = true)
     private String username;
@@ -61,4 +62,32 @@ public class User extends BaseEntity {
         transactions.remove(transaction);
         transaction.setUser(null);
     }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+
 }

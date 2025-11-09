@@ -22,4 +22,5 @@ public class ProductReadOnlyDTO {
     private String uuid;
     private UnitOfMeasure unit;
     private List<InventoryReadOnlyDTO> inventories;
+    private Double totalStock;
 }

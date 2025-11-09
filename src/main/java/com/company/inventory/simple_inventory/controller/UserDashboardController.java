@@ -1,4 +1,4 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.dto.UserReadOnlyDTO;
 import com.company.inventory.simple_inventory.service.UserService;

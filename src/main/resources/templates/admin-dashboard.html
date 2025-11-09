@@ -74,35 +74,6 @@
         </div>
       </div>
 
-      <!-- Recent Transactions Section -->
-      <h4 class="mb-3 mt-4">Recent Transactions</h4>
-      <div th:if="${#lists.isEmpty(recentTransactions)}">
-        <div class="alert alert-info text-center">No recent transactions available.</div>
-      </div>
-
-      <div th:unless="${#lists.isEmpty(recentTransactions)}">
-        <table class="table table-striped align-middle">
-          <thead class="table-dark">
-          <tr>
-            <th>UUID</th>
-            <th>Product</th>
-            <th>Quantity</th>
-            <th>Type</th>
-            <th>Date</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr th:each="t : ${recentTransactions}">
-            <td th:text="${t.uuid}"></td>
-            <td th:text="${t.productName}"></td>
-            <td th:text="${t.quantity}"></td>
-            <td th:text="${t.type}"></td>
-            <td th:text="${#temporals.format(t.date, 'dd MMM yyyy')}"></td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
-
     </div>
   </div>
 </div>

@@ -19,9 +19,6 @@ public class Inventory extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true)
-    private String uuid;
-
     private Double quantity;
 
     @Getter(AccessLevel.PUBLIC)

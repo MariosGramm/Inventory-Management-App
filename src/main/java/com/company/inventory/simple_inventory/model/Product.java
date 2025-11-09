@@ -23,16 +23,10 @@ public class Product extends BaseEntity {
     private Long id;
 
     @Column(unique = true)
-    private String uuid;
-
-    @Column(unique = true)
     private String name;
 
     @Column(unique = true)
     private String description;
-
-    @Column(nullable = false)
-    private Boolean deleted = false;
 
     @Enumerated(EnumType.STRING)
     private UnitOfMeasure unit;
@@ -40,7 +34,7 @@ public class Product extends BaseEntity {
     private Double price;
 
     @Getter(AccessLevel.PROTECTED)
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product", fetch = FetchType.EAGER)
     public Set<Transaction> transactions = new HashSet<>();
 
     public Set<Transaction> getAllProductTransactions() {return Collections.unmodifiableSet(transactions);}
@@ -57,7 +51,7 @@ public class Product extends BaseEntity {
         transaction.assignTransactionProduct(null);
     }
 
-    @OneToMany(mappedBy = "product")
+    @OneToMany(mappedBy = "product",fetch = FetchType.EAGER)
     @Getter(AccessLevel.PROTECTED)
     private Set<Inventory> inventories = new HashSet<>();
 
@@ -78,6 +72,15 @@ public class Product extends BaseEntity {
         if (inventories == null) return;
         inventories.remove(inventory);
         inventory.setProduct(null);
+    }
+
+    public double getTotalStock() {
+        if (inventories == null || inventories.isEmpty()) return 0.0;
+
+        return inventories.stream()
+                .filter(inv -> inv.getQuantity() != null)
+                .mapToDouble(Inventory::getQuantity)
+                .sum();
     }
 
 

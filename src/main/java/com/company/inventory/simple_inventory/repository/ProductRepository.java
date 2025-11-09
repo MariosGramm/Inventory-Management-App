@@ -25,4 +25,7 @@ public interface ProductRepository extends JpaRepository<Product,Long> , JpaSpec
 
     @Query("SELECT t.product FROM Transaction t WHERE t.uuid = :transactionUuid")
     Optional<Product> findProductByTransactionUuid(@Param("transactionUuid") String transactionUuid);
+
+    @Query("SELECT DISTINCT p FROM Product p LEFT JOIN FETCH p.inventories i LEFT JOIN FETCH i.warehouse")
+    List<Product> findAllWithInventories();
 }

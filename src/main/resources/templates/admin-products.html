@@ -33,7 +33,7 @@
 
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h2>Products Management</h2>
-                <a th:href="@{/admin/products/add}" class="btn btn-success">+ Add New Product</a>
+                <a th:href="@{/admin/products/new}" class="btn btn-success">+ Add New Product</a>
             </div>
 
             <!-- Flash Messages -->
@@ -57,8 +57,9 @@
                     <select name="unit" class="form-select" th:value="${selectedUnit}">
                         <option value="">All Units</option>
                         <option value="PIECE">Piece</option>
-                        <option value="KG">Kg</option>
+                        <option value="KILOGRAM">Kg</option>
                         <option value="LITER">Liter</option>
+                        <option value="METER">Meter</option>
                     </select>
                 </div>
                 <div class="col-md-5 d-flex gap-2">
@@ -86,7 +87,6 @@
                         <th>UUID</th>
                         <th>Unit</th>
                         <th>Stock</th>
-                        <th>Price</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -95,8 +95,7 @@
                         <td th:text="${product.name}"></td>
                         <td th:text="${product.uuid}"></td>
                         <td th:text="${product.unit}"></td>
-                        <td th:text="${product.quantity}"></td>
-                        <td th:text="${product.price}"></td>
+                        <td th:text="${product.totalStock}"></td>
                         <td>
                             <a th:href="@{'/admin/products/edit/' + ${product.uuid}}" class="btn btn-sm btn-warning">Edit</a>
                             <a th:href="@{'/admin/products/delete/' + ${product.uuid}}"

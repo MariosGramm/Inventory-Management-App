@@ -24,7 +24,7 @@ import java.util.UUID;
 public abstract class BaseEntity {
 
     @Column(nullable = false)
-    protected boolean deleted = false;
+    protected Boolean deleted = false;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

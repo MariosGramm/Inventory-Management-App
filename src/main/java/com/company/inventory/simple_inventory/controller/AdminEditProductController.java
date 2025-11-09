@@ -1,4 +1,4 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.core.enums.UnitOfMeasure;
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
@@ -21,7 +21,7 @@ public class AdminEditProductController {
     private final IProductService productService;
 
     @GetMapping("/admin/products/edit/{uuid}")
-    public String showEditProductPage(@PathVariable String uuid, Model model, RedirectAttributes redirectAttributes) {
+    public String showEditProductPage(@PathVariable String uuid, Model model, RedirectAttributes redirectAttributes) throws EntityNotFoundException {
 
             ProductUpdateDTO dto = productService.getProductForUpdate(uuid);
             model.addAttribute("product", dto);

@@ -21,15 +21,9 @@ public class Warehouse extends BaseEntity {
     private Long id;
 
     @Column(unique = true)
-    private String uuid;
-
-    @Column(unique = true)
     private String name;
 
-    @Column(unique = true)
-    private String address;
-
-    private Integer postalCode;
+    private String city;
 
     @Getter(AccessLevel.PROTECTED)
     @OneToMany(mappedBy = "warehouse")

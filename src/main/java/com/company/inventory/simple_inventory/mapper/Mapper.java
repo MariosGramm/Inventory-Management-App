@@ -33,7 +33,7 @@ public class Mapper {
 
 
     public ProductReadOnlyDTO mapToProductReadOnlyDTO(Product product) {
-        List<InventoryReadOnlyDTO> inventoryDTOs = product.getAllProductInventories().stream()
+        List<InventoryReadOnlyDTO> inventoryDTOs = product.getInventoriesSafe().stream()
                 .map(inv -> InventoryReadOnlyDTO.builder()
                         .warehouseName(inv.getWarehouse().getName())
                         .quantity(inv.getQuantity())
@@ -41,6 +41,15 @@ public class Mapper {
                         .build())
                 .collect(Collectors.toList());
 
+        double totalStock = product.getInventoriesSafe().stream()
+                .peek(inv -> System.out.println(
+                        ">>> Inventory found for product " + product.getName() +
+                                ": " + inv.getWarehouse().getName() + " -> " + inv.getQuantity()))
+                .filter(inv -> inv.getQuantity() != null)
+                .mapToDouble(Inventory::getQuantity)
+                .sum();
+
+        System.out.println(">>> Total stock for " + product.getName() + " = " + totalStock);
 
         return new ProductReadOnlyDTO(
                 product.getName(),
@@ -49,7 +58,8 @@ public class Mapper {
                 product.getUpdatedAt(),
                 product.getUuid(),
                 product.getUnit(),
-                inventoryDTOs
+                inventoryDTOs,
+                totalStock
         );
     }
 
@@ -65,7 +75,7 @@ public class Mapper {
     public UserReadOnlyDTO mapToUserReadOnlyDTO(User user){
         return new UserReadOnlyDTO
                 (
-                user.getUsername(), user.getEmail(), user.getRole(), user.getFirstname(), user.getLastname()
+                        user.getUuid(), user.getUsername(), user.getEmail(), user.getRole(), user.getFirstname(), user.getLastname()
                 );
     }
 
@@ -99,10 +109,16 @@ public class Mapper {
         dto.setDescription(product.getDescription());
         dto.setUnit(product.getUnit());
         dto.setPrice(product.getPrice());
+        dto.setQuantity(product.getInventoriesSafe()
+                .stream()
+                .filter(inv -> !inv.getWarehouse().getDeleted())
+                .findFirst()
+                .map(Inventory::getQuantity)
+                .orElse(0.0));
 
 
         product.getInventoriesSafe().stream()
-                .filter(inv -> !inv.getWarehouse().isDeleted())
+                .filter(inv -> !inv.getWarehouse().getDeleted())
                 .findFirst()
                 .ifPresent(inv -> dto.setWarehouseUuid(inv.getWarehouse().getUuid()));
 

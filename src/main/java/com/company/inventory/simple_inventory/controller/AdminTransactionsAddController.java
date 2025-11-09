@@ -1,4 +1,4 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.core.exceptions.EntityInvalidArgumentException;
 import com.company.inventory.simple_inventory.core.exceptions.EntityNotFoundException;
@@ -32,6 +32,11 @@ public class AdminTransactionsAddController {
 
     @PostMapping("/admin/transactions/add")
     public String addTransaction(InventoryInsertDTO inventoryInsertDTO, RedirectAttributes redirectAttributes) throws EntityNotFoundException {
+
+        System.out.println(">>> DTO values:");
+        System.out.println("Product UUID: " + inventoryInsertDTO.getProductUuid());
+        System.out.println("Warehouse UUID: " + inventoryInsertDTO.getWarehouseUuid());
+        System.out.println("Quantity: " + inventoryInsertDTO.getQuantity());
         try {
             inventoryService.addTransaction(inventoryInsertDTO);
             redirectAttributes.addFlashAttribute("success","Transaction added successfully");
@@ -40,6 +45,7 @@ public class AdminTransactionsAddController {
         }catch (EntityInvalidArgumentException e) {     // Should never occur since product and warehouse are chosen via dropdowns,kept for consistency purposes
             redirectAttributes.addFlashAttribute("error", "Invalid transaction parameters");
         }
+
 
         return "redirect:/admin/transactions";
     }

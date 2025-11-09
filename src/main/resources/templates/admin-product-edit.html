@@ -67,11 +67,12 @@
               </div>
               <div class="col-md-8">
                 <label class="form-label">Warehouse</label>
-                <select th:field="*{warehouseName}" class="form-select" required>
+                <label class="form-label">Warehouse</label>
+                <select th:field="*{warehouseUuid}" class="form-select" required>
                   <option disabled value="">Select warehouse</option>
-                  <option th:each="warehouse : ${warehouses}"
-                          th:value="${warehouse.name}"
-                          th:text="${warehouse.name}">
+                  <option th:each="w : ${warehouses}"
+                          th:value="${w.uuid}"
+                          th:text="${w.name}">
                   </option>
                 </select>
               </div>

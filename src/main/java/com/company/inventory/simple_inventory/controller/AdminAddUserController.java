@@ -1,4 +1,4 @@
-package com.company.inventory.simple_inventory.model.controller;
+package com.company.inventory.simple_inventory.controller;
 
 import com.company.inventory.simple_inventory.core.exceptions.EntityAlreadyExistsException;
 import com.company.inventory.simple_inventory.dto.UserInsertDTO;
